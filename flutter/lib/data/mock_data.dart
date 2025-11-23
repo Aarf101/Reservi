@@ -59,6 +59,8 @@ final mockUser = User(
   name: 'Utilisateur',
   email: 'user@email.com',
   avatar: null,
+  phone: '+33 6 12 34 56 78',
+  address: '123 Rue de la Paix, 75000 Paris',
   favoriteIds: ['1'],
   reservations: [
     Reservation(

@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import '../types.dart';
 
 class ConfirmationScreen extends StatelessWidget {
+  final Activity activity;
+  final DateTime date;
+  final String time;
+  final int participants;
   final VoidCallback onSuccess;
   final VoidCallback onBack;
-  const ConfirmationScreen({Key? key, required this.onSuccess, required this.onBack}) : super(key: key);
+  const ConfirmationScreen({Key? key, required this.activity, required this.date, required this.time, required this.participants, required this.onSuccess, required this.onBack}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -31,13 +36,13 @@ class ConfirmationScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _DetailRow('Activité', 'Bowling Premium'),
+                  _DetailRow('Activité', activity.name),
                   SizedBox(height: 16),
-                  _DetailRow('Date', '22/11/2025'),
+                  _DetailRow('Date', '${date.day}/${date.month}/${date.year}'),
                   SizedBox(height: 16),
-                  _DetailRow('Créneau horaire', '18:00'),
+                  _DetailRow('Créneau horaire', time),
                   SizedBox(height: 16),
-                  _DetailRow('Participants', '2'),
+                  _DetailRow('Participants', participants.toString()),
                   SizedBox(height: 20),
                   Divider(height: 1),
                   SizedBox(height: 20),
@@ -45,7 +50,7 @@ class ConfirmationScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text('Prix total', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey[900])),
-                      Text('30€', style: TextStyle(fontSize: 20, color: Color(0xFF2563EB), fontWeight: FontWeight.bold)),
+                      Text('${(activity.price * participants).toStringAsFixed(0)}€', style: TextStyle(fontSize: 20, color: Color(0xFF2563EB), fontWeight: FontWeight.bold)),
                     ],
                   ),
                 ],

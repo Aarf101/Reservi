@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../data/mock_data.dart';
+import '../types.dart';
 
 class HistoriqueScreen extends StatefulWidget {
   final VoidCallback onBack;
@@ -26,9 +29,7 @@ class _HistoriqueScreenState extends State<HistoriqueScreen> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
-    final reservations = mockUser.reservations;
-    final upcomingReservations = reservations.where((r) => r.date.isAfter(DateTime.now())).toList();
-    final pastReservations = reservations.where((r) => r.date.isBefore(DateTime.now())).toList();
+    final user = FirebaseAuth.instance.currentUser;
 
     return Scaffold(
       appBar: AppBar(
@@ -43,31 +44,99 @@ class _HistoriqueScreenState extends State<HistoriqueScreen> with SingleTickerPr
         bottom: TabBar(
           controller: _tabController,
           tabs: [
-            Tab(text: 'À venir (${upcomingReservations.length})'),
-            Tab(text: 'Passées (${pastReservations.length})'),
+            Tab(text: 'À venir'),
+            Tab(text: 'Passées'),
           ],
         ),
       ),
-      body: reservations.isEmpty
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.calendar_month, size: 64, color: Colors.grey[400]),
-                  SizedBox(height: 16),
-                  Text('Aucune réservation', style: TextStyle(color: Colors.grey[600], fontSize: 16)),
-                  SizedBox(height: 8),
-                  Text('Réserve une activité pour voir tes réservations', style: TextStyle(color: Colors.grey[400], fontSize: 14)),
-                ],
-              ),
-            )
-          : TabBarView(
-              controller: _tabController,
-              children: [
-                _buildReservationList(upcomingReservations, isUpcoming: true),
-                _buildReservationList(pastReservations, isUpcoming: false),
-              ],
+      body: user == null
+          ? _buildFromMock()
+          : StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+              stream: FirebaseFirestore.instance
+                  .collection('users')
+                  .doc(user.uid)
+                  .collection('reservations')
+                  .orderBy('date', descending: false)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) return Center(child: CircularProgressIndicator());
+                if (!snapshot.hasData || snapshot.data == null || snapshot.data!.docs.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.calendar_month, size: 64, color: Colors.grey[400]),
+                        SizedBox(height: 16),
+                        Text('Aucune réservation', style: TextStyle(color: Colors.grey[600], fontSize: 16)),
+                        SizedBox(height: 8),
+                        Text('Réserve une activité pour voir tes réservations', style: TextStyle(color: Colors.grey[400], fontSize: 14)),
+                      ],
+                    ),
+                  );
+                }
+
+                final docs = snapshot.data!.docs;
+                final reservations = docs.map((d) {
+                  final data = d.data();
+                  final Timestamp? ts = data['date'] is Timestamp ? data['date'] as Timestamp : null;
+                  final date = ts != null ? ts.toDate() : DateTime.now();
+                  final participantsRaw = data['participants'];
+                  final int participants = participantsRaw is int ? participantsRaw : (participantsRaw is double ? participantsRaw.toInt() : 1);
+                  final totalRaw = data['totalPrice'];
+                  final double totalPrice = totalRaw is double ? totalRaw : (totalRaw is int ? totalRaw.toDouble() : 0.0);
+
+                  return Reservation(
+                    id: d.id,
+                    activityId: data['activityId'] ?? '',
+                    date: date,
+                    time: data['time'] ?? '',
+                    status: data['status'] ?? 'upcoming',
+                    participants: participants,
+                    totalPrice: totalPrice,
+                  );
+                }).toList();
+
+                final upcomingReservations = reservations.where((r) => r.date.isAfter(DateTime.now())).toList();
+                final pastReservations = reservations.where((r) => r.date.isBefore(DateTime.now())).toList();
+
+                return TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _buildReservationList(upcomingReservations, isUpcoming: true),
+                    _buildReservationList(pastReservations, isUpcoming: false),
+                  ],
+                );
+              },
             ),
+    );
+  }
+
+  Widget _buildFromMock() {
+    final reservations = mockUser.reservations;
+    final upcomingReservations = reservations.where((r) => r.date.isAfter(DateTime.now())).toList();
+    final pastReservations = reservations.where((r) => r.date.isBefore(DateTime.now())).toList();
+
+    if (reservations.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.calendar_month, size: 64, color: Colors.grey[400]),
+            SizedBox(height: 16),
+            Text('Aucune réservation', style: TextStyle(color: Colors.grey[600], fontSize: 16)),
+            SizedBox(height: 8),
+            Text('Réserve une activité pour voir tes réservations', style: TextStyle(color: Colors.grey[400], fontSize: 14)),
+          ],
+        ),
+      );
+    }
+
+    return TabBarView(
+      controller: _tabController,
+      children: [
+        _buildReservationList(upcomingReservations, isUpcoming: true),
+        _buildReservationList(pastReservations, isUpcoming: false),
+      ],
     );
   }
 

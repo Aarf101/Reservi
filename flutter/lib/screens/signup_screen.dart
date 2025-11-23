@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../data/mock_data.dart';
 
 class SignupScreen extends StatefulWidget {
   final VoidCallback onSignup;
@@ -16,14 +19,45 @@ class _SignupScreenState extends State<SignupScreen> {
   final confirmPasswordController = TextEditingController();
   String? error;
 
-  void handleSubmit() {
+  Future<void> handleSubmit() async {
     setState(() => error = null);
     if (passwordController.text != confirmPasswordController.text) {
       setState(() => error = 'Les mots de passe ne correspondent pas');
       return;
     }
-    if (nameController.text.isNotEmpty && emailController.text.isNotEmpty && passwordController.text.isNotEmpty) {
+    if (nameController.text.isEmpty || emailController.text.isEmpty || passwordController.text.isEmpty) return;
+
+    // Require Firebase Auth signup: if Auth fails, show error and do NOT fall back to mock user.
+    try {
+      final auth = FirebaseAuth.instance;
+      final cred = await auth.createUserWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text,
+      );
+
+      // attempt to create user document in Firestore (non-fatal)
+      try {
+        await FirebaseFirestore.instance.collection('users').doc(cred.user!.uid).set({
+          'name': nameController.text.trim(),
+          'email': emailController.text.trim(),
+          'favoriteIds': [],
+        });
+      } catch (e) {
+        print('Warning: could not create Firestore user doc: $e');
+      }
+
+      // update local mockUser for UI convenience
+      mockUser.name = nameController.text.trim();
+      mockUser.email = emailController.text.trim();
+
       widget.onSignup();
+      return;
+    } on FirebaseAuthException catch (e) {
+      setState(() => error = e.message ?? 'Erreur lors de la création du compte');
+      return;
+    } catch (e) {
+      setState(() => error = 'Erreur inattendue: $e');
+      return;
     }
   }
 

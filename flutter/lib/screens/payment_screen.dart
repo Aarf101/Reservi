@@ -1,15 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../types.dart';
+import '../data/mock_data.dart';
 
 class PaymentScreen extends StatefulWidget {
+  final Activity activity;
+  final DateTime date;
+  final String time;
+  final int participants;
   final VoidCallback onSuccess;
   final VoidCallback onBack;
-  const PaymentScreen({Key? key, required this.onSuccess, required this.onBack}) : super(key: key);
+  const PaymentScreen({Key? key, required this.activity, required this.date, required this.time, required this.participants, required this.onSuccess, required this.onBack}) : super(key: key);
 
   @override
   _PaymentScreenState createState() => _PaymentScreenState();
 }
 
 class _PaymentScreenState extends State<PaymentScreen> {
+  bool isProcessing = false;
   final cardNumberController = TextEditingController();
   final expiryController = TextEditingController();
   final cvvController = TextEditingController();
@@ -217,8 +226,55 @@ class _PaymentScreenState extends State<PaymentScreen> {
           ),
           SizedBox(height: 24),
           ElevatedButton(
-            onPressed: () {
+            onPressed: isProcessing ? null : () async {
               if (_formKey.currentState!.validate()) {
+                setState(() => isProcessing = true);
+                await Future.delayed(Duration(seconds: 2));
+                // create reservation object
+                final newRes = Reservation(
+                  id: 'res${mockUser.reservations.length + 1}',
+                  activityId: widget.activity.id,
+                  date: widget.date,
+                  time: widget.time,
+                  status: 'upcoming',
+                  participants: widget.participants,
+                  totalPrice: widget.activity.price * widget.participants,
+                );
+
+                // Persist reservation to Firestore if user is signed in
+                final user = FirebaseAuth.instance.currentUser;
+                if (user == null) {
+                  mockUser.reservations.add(newRes);
+                } else {
+                  try {
+                    final reservationsRef = FirebaseFirestore.instance.collection('users').doc(user.uid).collection('reservations');
+                    final docRef = await reservationsRef.add({
+                      'activityId': newRes.activityId,
+                      'date': Timestamp.fromDate(newRes.date),
+                      'time': newRes.time,
+                      'status': newRes.status,
+                      'participants': newRes.participants,
+                      'totalPrice': newRes.totalPrice,
+                      'createdAt': FieldValue.serverTimestamp(),
+                    });
+                    // reflect saved reservation id
+                    final savedRes = Reservation(
+                      id: docRef.id,
+                      activityId: newRes.activityId,
+                      date: newRes.date,
+                      time: newRes.time,
+                      status: newRes.status,
+                      participants: newRes.participants,
+                      totalPrice: newRes.totalPrice,
+                    );
+                    mockUser.reservations.add(savedRes);
+                  } catch (e) {
+                    print('Failed to persist reservation to Firestore: $e');
+                    // fallback to local storage
+                    mockUser.reservations.add(newRes);
+                  }
+                }
+                setState(() => isProcessing = false);
                 widget.onSuccess();
               }
             },
@@ -227,7 +283,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
               backgroundColor: Color(0xFF2563EB),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
-            child: Text('Payer 30€', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+            child: isProcessing ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : Text('Payer ${(widget.activity.price * widget.participants).toStringAsFixed(0)}€', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
           ),
           SizedBox(height: 12),
           OutlinedButton(

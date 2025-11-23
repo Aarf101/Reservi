@@ -5,7 +5,9 @@ import '../types.dart';
 class ActivityCard extends StatelessWidget {
   final Activity activity;
   final VoidCallback onClick;
-  const ActivityCard({Key? key, required this.activity, required this.onClick}) : super(key: key);
+  final bool? isFavorite;
+  final VoidCallback? onToggleFavorite;
+  const ActivityCard({Key? key, required this.activity, required this.onClick, this.isFavorite, this.onToggleFavorite}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -62,6 +64,23 @@ class ActivityCard extends StatelessWidget {
                       ),
                     ),
                   ),
+                // favorite button
+                Positioned(
+                  top: 8,
+                  left: 8,
+                  child: GestureDetector(
+                    onTap: onToggleFavorite,
+                    child: Container(
+                      padding: EdgeInsets.all(6),
+                      decoration: BoxDecoration(color: Colors.white70, shape: BoxShape.circle),
+                      child: Icon(
+                        (isFavorite ?? false) ? Icons.favorite : Icons.favorite_border,
+                        color: (isFavorite ?? false) ? Colors.red : Colors.grey[700],
+                        size: 18,
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
             Padding(

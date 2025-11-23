@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import '../types.dart';
 
 class ChoixCreneauScreen extends StatefulWidget {
-  final VoidCallback onConfirm;
+  final Activity activity;
+  final void Function(DateTime date, String slot, int participants) onConfirm;
   final VoidCallback onBack;
-  const ChoixCreneauScreen({Key? key, required this.onConfirm, required this.onBack}) : super(key: key);
+  const ChoixCreneauScreen({Key? key, required this.activity, required this.onConfirm, required this.onBack}) : super(key: key);
 
   @override
   _ChoixCreneauScreenState createState() => _ChoixCreneauScreenState();
@@ -152,7 +154,7 @@ class _ChoixCreneauScreenState extends State<ChoixCreneauScreen> {
           ),
           SizedBox(height: 24),
           ElevatedButton(
-            onPressed: (selectedDate != null && selectedSlot != null) ? widget.onConfirm : null,
+            onPressed: (selectedDate != null && selectedSlot != null) ? () => widget.onConfirm(selectedDate!, selectedSlot!, participants) : null,
             style: ElevatedButton.styleFrom(
               padding: EdgeInsets.symmetric(vertical: 16),
               backgroundColor: Color(0xFF2563EB),

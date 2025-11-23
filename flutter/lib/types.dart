@@ -72,9 +72,11 @@ class Reservation {
 }
 
 class User {
-  final String name;
-  final String email;
-  final String? avatar;
+  String name;
+  String email;
+  String? avatar;
+  String? phone;
+  String? address;
   final List<String> favoriteIds;
   final List<Reservation> reservations;
 
@@ -82,6 +84,8 @@ class User {
     required this.name,
     required this.email,
     this.avatar,
+    this.phone,
+    this.address,
     required this.favoriteIds,
     required this.reservations,
   });
