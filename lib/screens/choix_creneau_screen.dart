@@ -26,53 +26,53 @@ class _ChoixCreneauScreenState extends State<ChoixCreneauScreen> {
         backgroundColor: Colors.white,
         iconTheme: IconThemeData(color: Colors.grey[900]),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: widget.onBack,
         ),
       ),
       body: ListView(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         children: [
           Card(
             elevation: 2,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             child: Padding(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('Sélectionnez une date', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey[900])),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   ElevatedButton.icon(
                     onPressed: () async {
                       final date = await showDatePicker(
                         context: context,
                         initialDate: DateTime.now(),
                         firstDate: DateTime.now(),
-                        lastDate: DateTime.now().add(Duration(days: 30)),
+                        lastDate: DateTime.now().add(const Duration(days: 30)),
                       );
                       if (date != null) setState(() => selectedDate = date);
                     },
-                    icon: Icon(Icons.calendar_today),
+                    icon: const Icon(Icons.calendar_today),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFF2563EB),
-                      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                      backgroundColor: const Color(0xFF2563EB),
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
                     label: Text(
                       selectedDate == null ? 'Choisir une date' : '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}',
-                      style: TextStyle(color: Colors.white, fontSize: 14),
+                      style: const TextStyle(color: Colors.white, fontSize: 14),
                     ),
                   ),
                   if (selectedDate != null) ...[
-                    SizedBox(height: 12),
+                    const SizedBox(height: 12),
                     Container(
-                      padding: EdgeInsets.all(12),
+                      padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(color: Colors.green[50], borderRadius: BorderRadius.circular(8)),
                       child: Row(
                         children: [
                           Icon(Icons.check_circle, color: Colors.green[700]),
-                          SizedBox(width: 12),
+                          const SizedBox(width: 12),
                           Text(
                             'Date sélectionnée: ${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}',
                             style: TextStyle(color: Colors.green[700], fontWeight: FontWeight.w500),
@@ -85,17 +85,17 @@ class _ChoixCreneauScreenState extends State<ChoixCreneauScreen> {
               ),
             ),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Card(
             elevation: 2,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             child: Padding(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('Sélectionnez un créneau horaire', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey[900])),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
@@ -104,11 +104,11 @@ class _ChoixCreneauScreenState extends State<ChoixCreneauScreen> {
                       return GestureDetector(
                         onTap: () => setState(() => selectedSlot = slot),
                         child: Container(
-                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                           decoration: BoxDecoration(
-                            color: isSelected ? Color(0xFF2563EB) : Colors.grey[100],
+                            color: isSelected ? const Color(0xFF2563EB) : Colors.grey[100],
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: isSelected ? Color(0xFF2563EB) : Colors.grey[300]!),
+                            border: Border.all(color: isSelected ? const Color(0xFF2563EB) : Colors.grey[300]!),
                           ),
                           child: Text(slot, style: TextStyle(color: isSelected ? Colors.white : Colors.grey[900], fontWeight: FontWeight.bold)),
                         ),
@@ -119,32 +119,32 @@ class _ChoixCreneauScreenState extends State<ChoixCreneauScreen> {
               ),
             ),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Card(
             elevation: 2,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             child: Padding(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('Nombre de participants', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey[900])),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       IconButton(
                         onPressed: participants > 1 ? () => setState(() => participants--) : null,
-                        icon: Icon(Icons.remove_circle),
+                        icon: const Icon(Icons.remove_circle),
                       ),
                       Container(
-                        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                         decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(8)),
                         child: Text('$participants', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey[900])),
                       ),
                       IconButton(
                         onPressed: participants < 10 ? () => setState(() => participants++) : null,
-                        icon: Icon(Icons.add_circle, color: Color(0xFF2563EB)),
+                        icon: const Icon(Icons.add_circle, color: Color(0xFF2563EB)),
                       ),
                     ],
                   ),
@@ -152,15 +152,15 @@ class _ChoixCreneauScreenState extends State<ChoixCreneauScreen> {
               ),
             ),
           ),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           ElevatedButton(
             onPressed: (selectedDate != null && selectedSlot != null) ? () => widget.onConfirm(selectedDate!, selectedSlot!, participants) : null,
             style: ElevatedButton.styleFrom(
-              padding: EdgeInsets.symmetric(vertical: 16),
-              backgroundColor: Color(0xFF2563EB),
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              backgroundColor: const Color(0xFF2563EB),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
-            child: Text('Continuer', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+            child: const Text('Continuer', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
           ),
         ],
       ),

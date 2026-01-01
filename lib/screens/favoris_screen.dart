@@ -27,7 +27,7 @@ class _FavorisScreenState extends State<FavorisScreen> {
         backgroundColor: Colors.white,
         iconTheme: IconThemeData(color: Colors.grey[900]),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: widget.onBack,
         ),
       ),
@@ -36,7 +36,7 @@ class _FavorisScreenState extends State<FavorisScreen> {
           : StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
               stream: FirebaseFirestore.instance.collection('users').doc(user.uid).snapshots(),
               builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) return Center(child: CircularProgressIndicator());
+                if (snapshot.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator());
                 if (!snapshot.hasData || snapshot.data == null) return _buildFromMock(context);
                 final data = snapshot.data!.data();
                 final favIds = data != null && data['favoriteIds'] is List ? List<String>.from(data['favoriteIds']) : <String>[];
@@ -48,13 +48,13 @@ class _FavorisScreenState extends State<FavorisScreen> {
                     final favorites = activities.where((a) => favIds.contains(a.id)).toList();
                     if (favorites.isEmpty) return _buildEmpty();
                     return Padding(
-                      padding: EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('${favorites.length} activite${favorites.length > 1 ? 's' : ''} enregistree${favorites.length > 1 ? 's' : ''}', 
                             style: TextStyle(fontSize: 14, color: Colors.grey[600], fontWeight: FontWeight.w500)),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           Expanded(
                             child: GridView.builder(
                               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -97,8 +97,8 @@ class _FavorisScreenState extends State<FavorisScreen> {
                                           }
                                         },
                                         child: Container(
-                                          padding: EdgeInsets.all(8),
-                                          decoration: BoxDecoration(
+                                          padding: const EdgeInsets.all(8),
+                                          decoration: const BoxDecoration(
                                             color: Colors.white,
                                             shape: BoxShape.circle,
                                             boxShadow: [BoxShadow(blurRadius: 4, color: Colors.black12)],
@@ -128,18 +128,18 @@ class _FavorisScreenState extends State<FavorisScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.favorite_border, size: 64, color: Colors.grey[400]),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Text('Aucun favori pour le moment', style: TextStyle(color: Colors.grey[600], fontSize: 16)),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text('Ajoute des activites a tes favoris', style: TextStyle(color: Colors.grey[400], fontSize: 14)),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           ElevatedButton(
             onPressed: widget.onBack,
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.blue,
-              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
-            child: Text('Explorer les activites', style: TextStyle(color: Colors.white)),
+            child: const Text('Explorer les activites', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -150,13 +150,13 @@ class _FavorisScreenState extends State<FavorisScreen> {
     final favorites = mockActivities.where((a) => mockUser.favoriteIds.contains(a.id)).toList();
     if (favorites.isEmpty) return _buildEmpty();
     return Padding(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('${favorites.length} activite${favorites.length > 1 ? 's' : ''} enregistree${favorites.length > 1 ? 's' : ''}', 
             style: TextStyle(fontSize: 14, color: Colors.grey[600], fontWeight: FontWeight.w500)),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Expanded(
             child: GridView.builder(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -189,8 +189,8 @@ class _FavorisScreenState extends State<FavorisScreen> {
                           });
                         },
                         child: Container(
-                          padding: EdgeInsets.all(8),
-                          decoration: BoxDecoration(
+                          padding: const EdgeInsets.all(8),
+                          decoration: const BoxDecoration(
                             color: Colors.white,
                             shape: BoxShape.circle,
                             boxShadow: [BoxShadow(blurRadius: 4, color: Colors.black12)],

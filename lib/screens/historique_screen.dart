@@ -38,12 +38,12 @@ class _HistoriqueScreenState extends State<HistoriqueScreen> with SingleTickerPr
         backgroundColor: Colors.white,
         iconTheme: IconThemeData(color: Colors.grey[900]),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: widget.onBack,
         ),
         bottom: TabBar(
           controller: _tabController,
-          tabs: [
+          tabs: const [
             Tab(text: 'À venir'),
             Tab(text: 'Passées'),
           ],
@@ -59,16 +59,16 @@ class _HistoriqueScreenState extends State<HistoriqueScreen> with SingleTickerPr
                   .orderBy('date', descending: false)
                   .snapshots(),
               builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) return Center(child: CircularProgressIndicator());
+                if (snapshot.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator());
                 if (!snapshot.hasData || snapshot.data == null || snapshot.data!.docs.isEmpty) {
                   return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.calendar_month, size: 64, color: Colors.grey[400]),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         Text('Aucune réservation', style: TextStyle(color: Colors.grey[600], fontSize: 16)),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         Text('Réserve une activité pour voir tes réservations', style: TextStyle(color: Colors.grey[400], fontSize: 14)),
                       ],
                     ),
@@ -122,9 +122,9 @@ class _HistoriqueScreenState extends State<HistoriqueScreen> with SingleTickerPr
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.calendar_month, size: 64, color: Colors.grey[400]),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text('Aucune réservation', style: TextStyle(color: Colors.grey[600], fontSize: 16)),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text('Réserve une activité pour voir tes réservations', style: TextStyle(color: Colors.grey[400], fontSize: 14)),
           ],
         ),
@@ -150,19 +150,19 @@ class _HistoriqueScreenState extends State<HistoriqueScreen> with SingleTickerPr
       );
     }
     return ListView.builder(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               itemCount: reservations.length,
               itemBuilder: (context, index) {
                 final reservation = reservations[index];
                 final activity = mockActivities.firstWhere((a) => a.id == reservation.activityId, orElse: () => mockActivities[0]);
 
                 return Padding(
-                  padding: EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.only(bottom: 12),
                   child: Card(
                     elevation: 2,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     child: Padding(
-                      padding: EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -175,26 +175,26 @@ class _HistoriqueScreenState extends State<HistoriqueScreen> with SingleTickerPr
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(activity.name, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.grey[900])),
-                                    SizedBox(height: 8),
+                                    const SizedBox(height: 8),
                                     Row(
                                       children: [
                                         Icon(Icons.calendar_today, size: 16, color: Colors.grey[500]),
-                                        SizedBox(width: 8),
+                                        const SizedBox(width: 8),
                                         Text(
                                           '${reservation.date.day}/${reservation.date.month}/${reservation.date.year}',
                                           style: TextStyle(color: Colors.grey[600], fontSize: 14),
                                         ),
-                                        SizedBox(width: 16),
+                                        const SizedBox(width: 16),
                                         Icon(Icons.access_time, size: 16, color: Colors.grey[500]),
-                                        SizedBox(width: 8),
+                                        const SizedBox(width: 8),
                                         Text(reservation.time, style: TextStyle(color: Colors.grey[600], fontSize: 14)),
                                       ],
                                     ),
-                                    SizedBox(height: 8),
+                                    const SizedBox(height: 8),
                                     Row(
                                       children: [
                                         Icon(Icons.people, size: 16, color: Colors.grey[500]),
-                                        SizedBox(width: 8),
+                                        const SizedBox(width: 8),
                                         Text('${reservation.participants} participant${reservation.participants > 1 ? 's' : ''}', style: TextStyle(color: Colors.grey[600], fontSize: 14)),
                                       ],
                                     ),
@@ -202,7 +202,7 @@ class _HistoriqueScreenState extends State<HistoriqueScreen> with SingleTickerPr
                                 ),
                               ),
                               Container(
-                                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                 decoration: BoxDecoration(
                                   color: isUpcoming ? Colors.green[50] : Colors.grey[100],
                                   borderRadius: BorderRadius.circular(6),
@@ -218,9 +218,9 @@ class _HistoriqueScreenState extends State<HistoriqueScreen> with SingleTickerPr
                               ),
                             ],
                           ),
-                          SizedBox(height: 12),
-                          Divider(height: 1),
-                          SizedBox(height: 12),
+                          const SizedBox(height: 12),
+                          const Divider(height: 1),
+                          const SizedBox(height: 12),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [

@@ -27,22 +27,22 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
   void initState() {
     super.initState();
     _headerAnimationController = AnimationController(
-      duration: Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 800),
       vsync: this,
     );
     _cardAnimationController = AnimationController(
-      duration: Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
 
-    _headerSlideAnimation = Tween<Offset>(begin: Offset(0, -0.5), end: Offset.zero)
+    _headerSlideAnimation = Tween<Offset>(begin: const Offset(0, -0.5), end: Offset.zero)
         .animate(CurvedAnimation(parent: _headerAnimationController, curve: Curves.easeOut));
 
     _cardFadeAnimation = Tween<double>(begin: 0.0, end: 1.0)
         .animate(CurvedAnimation(parent: _cardAnimationController, curve: Curves.easeIn));
 
     _headerAnimationController.forward();
-    Future.delayed(Duration(milliseconds: 300), () {
+    Future.delayed(const Duration(milliseconds: 300), () {
       _cardAnimationController.forward();
     });
   }
@@ -57,7 +57,21 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
   }
 
   Future<void> handleSubmit() async {
-    if (emailController.text.isEmpty || passwordController.text.isEmpty) return;
+    final email = emailController.text.trim();
+    final password = passwordController.text;
+
+    if (email.isEmpty || password.isEmpty) {
+      setState(() => error = 'Veuillez remplir tous les champs');
+      return;
+    }
+    if (!_isValidEmail(email)) {
+      setState(() => error = 'Email invalide');
+      return;
+    }
+    if (password.length < 6) {
+      setState(() => error = 'Le mot de passe doit contenir au moins 6 caractères');
+      return;
+    }
 
     setState(() {
       isLoading = true;
@@ -68,7 +82,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
       final auth = FirebaseAuth.instance;
       final cred = await auth.signInWithEmailAndPassword(
         email: emailController.text.trim(),
-        password: passwordController.text,
+        password: password,
       );
 
       try {
@@ -107,8 +121,8 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
         }
       } catch (e) {
         print('Warning: could not load Firestore user doc: $e');
-        mockUser.email = emailController.text;
-        if (mockUser.name.isEmpty) mockUser.name = emailController.text.split('@').first;
+        mockUser.email = email;
+        if (mockUser.name.isEmpty) mockUser.name = email.split('@').first;
       }
 
       widget.onLogin();
@@ -123,11 +137,16 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
       print('Firebase login failed or not configured: $e — falling back to mock user.');
     }
 
-    mockUser.email = emailController.text;
+    mockUser.email = email;
     if (mockUser.name.isEmpty) {
-      mockUser.name = emailController.text.split('@').first;
+      mockUser.name = email.split('@').first;
     }
     widget.onLogin();
+  }
+
+  bool _isValidEmail(String value) {
+    const pattern = r'^.+@[^\.].*\.[a-z]{2,}$';
+    return RegExp(pattern, caseSensitive: false).hasMatch(value);
   }
 
   @override
@@ -135,7 +154,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
     return Scaffold(
       body: Container(
         height: MediaQuery.of(context).size.height,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -145,10 +164,10 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
         child: SafeArea(
           child: SingleChildScrollView(
             child: Padding(
-              padding: EdgeInsets.all(24),
+              padding: const EdgeInsets.all(24),
               child: Column(
                 children: [
-                  SizedBox(height: 40),
+                  const SizedBox(height: 40),
                   // Animated header slide-in
                   SlideTransition(
                     position: _headerSlideAnimation,
@@ -156,7 +175,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Container(
-                          padding: EdgeInsets.all(16),
+                          padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             color: Colors.white.withOpacity(0.95),
                             borderRadius: BorderRadius.circular(16),
@@ -164,19 +183,19 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                               BoxShadow(
                                 color: Colors.black.withOpacity(0.15),
                                 blurRadius: 16,
-                                offset: Offset(0, 8),
+                                offset: const Offset(0, 8),
                               )
                             ],
                           ),
-                          child: Icon(Icons.star, color: Color(0xFF9333EA), size: 32),
+                          child: const Icon(Icons.star, color: Color(0xFF9333EA), size: 32),
                         ),
-                        SizedBox(width: 12),
-                        Text('Reservi', 
+                        const SizedBox(width: 12),
+                        const Text('Reservi', 
                           style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 1)),
                       ],
                     ),
                   ),
-                  SizedBox(height: 40),
+                  const SizedBox(height: 40),
                   // Animated card fade-in
                   FadeTransition(
                     opacity: _cardFadeAnimation,
@@ -184,40 +203,40 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                       elevation: 2,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       child: Padding(
-                        padding: EdgeInsets.all(24),
+                        padding: const EdgeInsets.all(24),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text('Connexion', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.grey[800])),
-                            SizedBox(height: 4),
+                            const SizedBox(height: 4),
                             Text('Connectez-vous à votre compte', style: TextStyle(color: Colors.grey[600])),
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
                             if (error != null) ...[
                               Container(
-                                padding: EdgeInsets.all(12),
+                                padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(color: Colors.red[50], borderRadius: BorderRadius.circular(8)),
                                 child: Text(error!, style: TextStyle(color: Colors.red[700])),
                               ),
-                              SizedBox(height: 12),
+                              const SizedBox(height: 12),
                             ],
-                            SizedBox(height: 24),
+                            const SizedBox(height: 24),
                             Text('Email', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey[800])),
-                            SizedBox(height: 8),
+                            const SizedBox(height: 8),
                             _AnimatedTextField(
                               controller: emailController,
                               hintText: 'votre@email.com',
                               enabled: !isLoading,
                             ),
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
                             Text('Mot de passe', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey[800])),
-                            SizedBox(height: 8),
+                            const SizedBox(height: 8),
                             _AnimatedTextField(
                               controller: passwordController,
                               hintText: '••••••••',
                               obscureText: true,
                               enabled: !isLoading,
                             ),
-                            SizedBox(height: 24),
+                            const SizedBox(height: 24),
                             SizedBox(
                               width: double.infinity,
                               child: _AnimatedButton(
@@ -225,16 +244,16 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                                 isLoading: isLoading,
                               ),
                             ),
-                            SizedBox(height: 24),
+                            const SizedBox(height: 24),
                             Center(
                               child: Column(
                                 children: [
                                   GestureDetector(
                                     onTap: isLoading ? null : widget.onSignupClick,
-                                    child: Text('Créer un compte', 
+                                    child: const Text('Créer un compte', 
                                       style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold)),
                                   ),
-                                  SizedBox(height: 12),
+                                  const SizedBox(height: 12),
                                   Text('Mot de passe oublié ?', style: TextStyle(color: Colors.grey[600])),
                                 ],
                               ),
@@ -282,7 +301,7 @@ class _AnimatedTextFieldState extends State<_AnimatedTextField> with SingleTicke
   void initState() {
     super.initState();
     _focusAnimationController = AnimationController(
-      duration: Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 300),
       vsync: this,
     );
     _scaleAnimation = Tween<double>(begin: 1.0, end: 1.02).animate(
@@ -327,7 +346,7 @@ class _AnimatedTextFieldState extends State<_AnimatedTextField> with SingleTicke
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide(color: Colors.blue, width: 2),
+            borderSide: const BorderSide(color: Colors.blue, width: 2),
           ),
         ),
       ),
@@ -357,7 +376,7 @@ class _AnimatedButtonState extends State<_AnimatedButton> with SingleTickerProvi
   void initState() {
     super.initState();
     _bounceAnimationController = AnimationController(
-      duration: Duration(milliseconds: 600),
+      duration: const Duration(milliseconds: 600),
       vsync: this,
     );
     _bounceAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
@@ -384,11 +403,11 @@ class _AnimatedButtonState extends State<_AnimatedButton> with SingleTickerProvi
         onPressed: widget.isLoading ? null : _onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.blue,
-          padding: EdgeInsets.symmetric(vertical: 12),
+          padding: const EdgeInsets.symmetric(vertical: 12),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
         child: widget.isLoading
-            ? SizedBox(
+            ? const SizedBox(
                 height: 20,
                 width: 20,
                 child: CircularProgressIndicator(
@@ -396,7 +415,7 @@ class _AnimatedButtonState extends State<_AnimatedButton> with SingleTickerProvi
                   valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                 ),
               )
-            : Text('Se connecter', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+            : const Text('Se connecter', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
       ),
     );
   }

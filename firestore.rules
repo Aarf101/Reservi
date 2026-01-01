@@ -4,6 +4,9 @@ service cloud.firestore {
     // Allow anyone to read activities (for the home screen)
     match /activities/{activityId} {
       allow read: if true;
+      // DEV: allow creating activities even sans authentification (facilite le seed mock)
+      // À resserrer en prod (ex: only if request.auth != null).
+      allow create: if true;
       // Allow authenticated users to update rating/ratingCount aggregates (from review submissions)
       allow update: if request.auth != null && 
                        (request.writeFields.size() == 0 || 

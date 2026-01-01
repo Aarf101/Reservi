@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 import 'services/messaging_service.dart';
+import 'services/activity_service.dart';
 import 'firebase_options.dart';
 import 'screens/splash_screen.dart';
 import 'screens/home_screen.dart';
@@ -18,25 +19,54 @@ import 'screens/profil_screen.dart';
 import 'data/mock_data.dart';
 import 'types.dart';
 
+Future<void> _ensureSignedIn() async {
+  final auth = fb_auth.FirebaseAuth.instance;
+  if (auth.currentUser != null) return;
+  try {
+    await auth.signInAnonymously();
+    print('Signed in anonymously for Firestore sync.');
+  } catch (e) {
+    print('Warning: signInAnonymously() failed. Activities will not sync to Firestore. Error: $e');
+  }
+}
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  var firebaseReady = false;
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    // Initialize messaging (FCM) when Firebase is available
-    await MessagingService.init();
+    firebaseReady = true;
+    print('[main] Firebase initialized');
   } catch (e) {
-    // If Firebase isn't configured for this platform or initialization fails,
-    // continue in mock mode. To fully enable Firebase, run `flutterfire configure`
-    // or add platform config files (`google-services.json` / `GoogleService-Info.plist`).
     print('Warning: Firebase.initializeApp() failed — running in mock mode. Error: $e');
+  }
+
+  if (firebaseReady) {
+    // Initialize messaging (FCM) when Firebase is available
+    try {
+      await MessagingService.init();
+    } catch (e) {
+      print('Warning: MessagingService.init() failed: $e');
+    }
+
+    print('[main] Before ensureSignedIn, currentUser=${fb_auth.FirebaseAuth.instance.currentUser?.uid}');
+    await _ensureSignedIn();
+    print('[main] After ensureSignedIn, currentUser=${fb_auth.FirebaseAuth.instance.currentUser?.uid}');
+
+    // Sync mock activities into Firestore without overwriting existing docs
+    print('[main] Starting syncMissingMockActivities');
+    await ActivityService.syncMissingMockActivities();
+    print('[main] Finished syncMissingMockActivities');
   }
 
   runApp(Reservi1App());
 }
 
 class Reservi1App extends StatefulWidget {
+  const Reservi1App({super.key});
+
   @override
   _Reservi1AppState createState() => _Reservi1AppState();
 }

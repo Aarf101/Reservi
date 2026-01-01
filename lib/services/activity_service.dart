@@ -3,6 +3,23 @@ import '../types.dart';
 import '../data/mock_data.dart';
 
 class ActivityService {
+  static Map<String, dynamic> _activityToMap(Activity a) {
+    return {
+      'name': a.name,
+      'price': a.price,
+      'location': a.location,
+      'image': a.image,
+      'description': a.description,
+      'type': a.type,
+      'images': a.images,
+      'availableSlots': a.availableSlots,
+      'rating': a.rating,
+      'coordinates': a.coordinates,
+      'hasPromotion': a.hasPromotion,
+      'promotionText': a.promotionText,
+    };
+  }
+
   static Stream<List<Activity>> activitiesStream() {
     return FirebaseFirestore.instance.collection('activities').snapshots().map((snap) {
       return snap.docs.map((doc) {
@@ -36,21 +53,35 @@ class ActivityService {
     final batch = FirebaseFirestore.instance.batch();
     for (final a in mockActivities) {
       final docRef = col.doc(a.id);
-      batch.set(docRef, {
-        'name': a.name,
-        'price': a.price,
-        'location': a.location,
-        'image': a.image,
-        'description': a.description,
-        'type': a.type,
-        'images': a.images,
-        'availableSlots': a.availableSlots,
-        'rating': a.rating,
-        'coordinates': a.coordinates,
-        'hasPromotion': a.hasPromotion,
-        'promotionText': a.promotionText,
-      });
+      batch.set(docRef, _activityToMap(a));
     }
     await batch.commit();
+  }
+
+  // Add any mock activities that are missing, without touching existing docs.
+  static Future<void> syncMissingMockActivities() async {
+    final col = FirebaseFirestore.instance.collection('activities');
+    try {
+      print('syncMissingMockActivities: fetching existing activities');
+      final snapshot = await col.get();
+      final existingIds = snapshot.docs.map((d) => d.id).toSet();
+
+      final missing = mockActivities.where((a) => !existingIds.contains(a.id)).toList();
+      if (missing.isEmpty) {
+        print('syncMissingMockActivities: no missing activities to add');
+        return;
+      }
+
+      print('syncMissingMockActivities: adding ${missing.length} activities');
+      final batch = FirebaseFirestore.instance.batch();
+      for (final a in missing) {
+        batch.set(col.doc(a.id), _activityToMap(a));
+      }
+
+      await batch.commit();
+      print('syncMissingMockActivities: added ${missing.length} activities');
+    } catch (e) {
+      print('syncMissingMockActivities error: $e');
+    }
   }
 }

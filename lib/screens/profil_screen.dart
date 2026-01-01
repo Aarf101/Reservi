@@ -166,15 +166,15 @@ class _ProfilScreenState extends State<ProfilScreen> {
         iconTheme: IconThemeData(color: Colors.grey[900]),
       ),
       body: isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : ListView(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               children: [
                 Card(
                   elevation: 2,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   child: Padding(
-                    padding: EdgeInsets.all(24),
+                    padding: const EdgeInsets.all(24),
                     child: Column(
                       children: [
                         if ((avatarController.text).isNotEmpty)
@@ -183,88 +183,88 @@ class _ProfilScreenState extends State<ProfilScreen> {
                           Container(
                             width: 80,
                             height: 80,
-                            decoration: BoxDecoration(
+                            decoration: const BoxDecoration(
                               shape: BoxShape.circle,
                               gradient: LinearGradient(colors: [Color(0xFF2563EB), Color(0xFF9333EA)]),
                             ),
-                            child: Icon(Icons.person, color: Colors.white, size: 40),
+                            child: const Icon(Icons.person, color: Colors.white, size: 40),
                           ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         TextField(
                           controller: nameController,
-                          decoration: InputDecoration(border: InputBorder.none, hintText: 'Nom'),
+                          decoration: const InputDecoration(border: InputBorder.none, hintText: 'Nom'),
                           style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.grey[900]),
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
                         Text(displayEmail, style: TextStyle(color: Colors.grey[600], fontSize: 14)),
                       ],
                     ),
                   ),
                 ),
-                SizedBox(height: 24),
+                const SizedBox(height: 24),
                 Card(
                   elevation: 2,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   child: Padding(
-                    padding: EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('Informations', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey[900])),
-                        SizedBox(height: 16),
-                        _InfoRow('Nom', ''),
-                        SizedBox(height: 12),
+                        const SizedBox(height: 16),
+                        const _InfoRow('Nom', ''),
+                        const SizedBox(height: 12),
                         _InfoRow('Email', displayEmail),
-                        SizedBox(height: 12),
+                        const SizedBox(height: 12),
                         Text('Avatar URL', style: TextStyle(color: Colors.grey[600], fontSize: 14)),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         TextField(
                           controller: avatarController,
                           decoration: InputDecoration(hintText: 'https://...', border: OutlineInputBorder(borderRadius: BorderRadius.circular(8))),
                         ),
-                        SizedBox(height: 12),
+                        const SizedBox(height: 12),
                         Text('Téléphone', style: TextStyle(color: Colors.grey[600], fontSize: 14)),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         TextField(
                           controller: phoneController,
                           decoration: InputDecoration(hintText: '+33 6 12 34 56 78', border: OutlineInputBorder(borderRadius: BorderRadius.circular(8))),
                         ),
-                        SizedBox(height: 12),
+                        const SizedBox(height: 12),
                         Text('Adresse', style: TextStyle(color: Colors.grey[600], fontSize: 14)),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         TextField(
                           controller: addressController,
                           decoration: InputDecoration(hintText: '123 Rue de la Paix, 75000 Paris', border: OutlineInputBorder(borderRadius: BorderRadius.circular(8))),
                         ),
-                        SizedBox(height: 12),
-                        SizedBox(height: 12),
+                        const SizedBox(height: 12),
+                        const SizedBox(height: 12),
                       ],
                     ),
                   ),
                 ),
-                SizedBox(height: 24),
+                const SizedBox(height: 24),
                 if (error != null) ...[
-                  Container(padding: EdgeInsets.all(12), decoration: BoxDecoration(color: Colors.red[50], borderRadius: BorderRadius.circular(8)), child: Text(error!, style: TextStyle(color: Colors.red[700]))),
-                  SizedBox(height: 12),
+                  Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: Colors.red[50], borderRadius: BorderRadius.circular(8)), child: Text(error!, style: TextStyle(color: Colors.red[700]))),
+                  const SizedBox(height: 12),
                 ],
                 ElevatedButton(
                   onPressed: isSaving ? null : _saveProfile,
                   style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                     backgroundColor: Colors.blue,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
-                  child: isSaving ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : Text('Enregistrer', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                  child: isSaving ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : const Text('Enregistrer', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
                 ),
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
                 ElevatedButton(
                   onPressed: widget.onLogout,
                   style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                     backgroundColor: Colors.red,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
-                  child: Text('Déconnexion', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                  child: const Text('Déconnexion', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
                 ),
               ],
             ),

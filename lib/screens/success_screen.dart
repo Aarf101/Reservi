@@ -8,7 +8,7 @@ class SuccessScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -18,12 +18,12 @@ class SuccessScreen extends StatelessWidget {
         child: Center(
           child: SingleChildScrollView(
             child: Padding(
-              padding: EdgeInsets.all(24),
+              padding: const EdgeInsets.all(24),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    padding: EdgeInsets.all(32),
+                    padding: const EdgeInsets.all(32),
                     decoration: BoxDecoration(
                       color: Colors.green[50],
                       shape: BoxShape.circle,
@@ -31,17 +31,17 @@ class SuccessScreen extends StatelessWidget {
                     ),
                     child: Icon(Icons.check_circle, size: 80, color: Colors.green[700]),
                   ),
-                  SizedBox(height: 32),
+                  const SizedBox(height: 32),
                   Text('Réservation confirmée !', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.grey[900])),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   Text('Votre réservation a été effectuée avec succès', style: TextStyle(color: Colors.grey[600], fontSize: 16)),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text('Un email de confirmation a été envoyé', style: TextStyle(color: Colors.grey[500], fontSize: 14)),
-                  SizedBox(height: 40),
+                  const SizedBox(height: 40),
                   Card(
                     elevation: 2,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    child: Padding(
+                    child: const Padding(
                       padding: EdgeInsets.all(20),
                       child: Column(
                         children: [
@@ -58,19 +58,19 @@ class SuccessScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  SizedBox(height: 40),
+                  const SizedBox(height: 40),
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 0),
+                    padding: const EdgeInsets.symmetric(horizontal: 0),
                     child: SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: onHome,
                         style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(vertical: 16),
-                          backgroundColor: Color(0xFF2563EB),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          backgroundColor: const Color(0xFF2563EB),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                         ),
-                        child: Text('Retourner à l\'accueil', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                        child: const Text('Retourner à l\'accueil', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
                       ),
                     ),
                   ),

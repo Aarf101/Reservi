@@ -32,7 +32,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   void initState() {
     super.initState();
     _animationController = AnimationController(
-      duration: Duration(milliseconds: 600),
+      duration: const Duration(milliseconds: 600),
       vsync: this,
     );
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
@@ -84,7 +84,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         'hasPromotion': true,
         'promotionText': 'Jeudi -50% sur la 2e place',
       });
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Sample activity added to Firestore')));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Sample activity added to Firestore')));
     } catch (e) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to add sample activity: $e')));
     }
@@ -110,7 +110,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [Colors.white, Color(0xFFF3E8FF).withOpacity(0.3)],
+                    colors: [Colors.white, const Color(0xFFF3E8FF).withOpacity(0.3)],
                   ),
                 ),
               ),
@@ -118,22 +118,22 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             title: Row(
               children: [
                 Container(
-                  padding: EdgeInsets.all(6),
+                  padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(colors: [Color(0xFF2563EB), Color(0xFF9333EA)]),
+                    gradient: const LinearGradient(colors: [Color(0xFF2563EB), Color(0xFF9333EA)]),
                     borderRadius: BorderRadius.circular(10),
-                    boxShadow: [BoxShadow(color: Color(0xFF2563EB).withOpacity(0.3), blurRadius: 8)],
+                    boxShadow: [BoxShadow(color: const Color(0xFF2563EB).withOpacity(0.3), blurRadius: 8)],
                   ),
-                  child: Icon(Icons.star, color: Colors.white, size: 22),
+                  child: const Icon(Icons.star, color: Colors.white, size: 22),
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Text('Reservi', style: TextStyle(color: Colors.grey[800], fontSize: 22, fontWeight: FontWeight.bold)),
               ],
             ),
             actions: [
-              IconButton(icon: Icon(Icons.favorite_border), onPressed: widget.onFavoris),
+              IconButton(icon: const Icon(Icons.favorite_border), onPressed: widget.onFavoris),
               Padding(
-                padding: EdgeInsets.only(right: 8),
+                padding: const EdgeInsets.only(right: 8),
                 child: GestureDetector(
                   onTap: widget.onProfil,
                   child: _buildProfileAvatar(user),
@@ -145,7 +145,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             child: FadeTransition(
               opacity: _fadeAnimation,
               child: Padding(
-                padding: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -153,7 +153,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     if (promotions.isNotEmpty)
                       TweenAnimationBuilder<double>(
                         tween: Tween(begin: 0.0, end: 1.0),
-                        duration: Duration(milliseconds: 600),
+                        duration: const Duration(milliseconds: 600),
                         builder: (context, value, child) {
                           return Transform.translate(
                             offset: Offset(0, (1 - value) * 20),
@@ -161,29 +161,29 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                           );
                         },
                         child: Container(
-                          padding: EdgeInsets.all(14),
+                          padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
-                            gradient: LinearGradient(
+                            gradient: const LinearGradient(
                               colors: [Color(0xFFFEE2E2), Color(0xFFFECACA)],
                             ),
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Color(0xFFFECACA), width: 2),
+                            border: Border.all(color: const Color(0xFFFECACA), width: 2),
                             boxShadow: [
                               BoxShadow(
-                                color: Color(0xFFDC2626).withOpacity(0.1),
+                                color: const Color(0xFFDC2626).withOpacity(0.1),
                                 blurRadius: 8,
-                                offset: Offset(0, 4),
+                                offset: const Offset(0, 4),
                               )
                             ],
                           ),
                           child: Row(
                             children: [
-                              Icon(Icons.local_offer, color: Color(0xFFDC2626), size: 22),
-                              SizedBox(width: 10),
+                              const Icon(Icons.local_offer, color: Color(0xFFDC2626), size: 22),
+                              const SizedBox(width: 10),
                               Expanded(
                                 child: Text(
                                   '🎉 ${promotions.length} promotion${promotions.length > 1 ? 's' : ''} en cours ! Ne manquez pas nos offres spéciales.',
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     color: Color(0xFFB91C1C),
                                     fontWeight: FontWeight.bold,
                                     fontSize: 13,
@@ -194,24 +194,24 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                           ),
                         ),
                       ),
-                    if (promotions.isNotEmpty) SizedBox(height: 18),
+                    if (promotions.isNotEmpty) const SizedBox(height: 18),
                     // Animated search bar
                     AnimatedContainer(
-                      duration: Duration(milliseconds: 300),
+                      duration: const Duration(milliseconds: 300),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           if (isSearchFocused)
                             BoxShadow(
-                              color: Color(0xFF2563EB).withOpacity(0.2),
+                              color: const Color(0xFF2563EB).withOpacity(0.2),
                               blurRadius: 12,
-                              offset: Offset(0, 4),
+                              offset: const Offset(0, 4),
                             )
                           else
                             BoxShadow(
                               color: Colors.black.withOpacity(0.05),
                               blurRadius: 6,
-                              offset: Offset(0, 2),
+                              offset: const Offset(0, 2),
                             )
                         ],
                       ),
@@ -235,11 +235,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                           ),
                           filled: true,
                           fillColor: Colors.grey[50],
-                          contentPadding: EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+                          contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
                         ),
                       ),
                     ),
-                    SizedBox(height: 18),
+                    const SizedBox(height: 18),
                     // Filter pills with smooth transitions
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
@@ -250,37 +250,37 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             isSelected: selectedType == 'all',
                             onTap: () => setState(() => selectedType = 'all'),
                           ),
-                          SizedBox(width: 8),
+                          const SizedBox(width: 8),
                           _FilterPill(
                             label: 'Sport',
                             isSelected: selectedType == 'Sport',
                             onTap: () => setState(() => selectedType = 'Sport'),
                           ),
-                          SizedBox(width: 8),
+                          const SizedBox(width: 8),
                           _FilterPill(
                             label: 'Loisir',
                             isSelected: selectedType == 'Loisir',
                             onTap: () => setState(() => selectedType = 'Loisir'),
                           ),
-                          SizedBox(width: 16),
+                          const SizedBox(width: 16),
                           _FilterPill(
                             label: 'Tous prix',
                             isSelected: priceFilter == 'all',
                             onTap: () => setState(() => priceFilter = 'all'),
                           ),
-                          SizedBox(width: 8),
+                          const SizedBox(width: 8),
                           _FilterPill(
                             label: '- 15€',
                             isSelected: priceFilter == 'low',
                             onTap: () => setState(() => priceFilter = 'low'),
                           ),
-                          SizedBox(width: 8),
+                          const SizedBox(width: 8),
                           _FilterPill(
                             label: '15€ - 25€',
                             isSelected: priceFilter == 'medium',
                             onTap: () => setState(() => priceFilter = 'medium'),
                           ),
-                          SizedBox(width: 8),
+                          const SizedBox(width: 8),
                           _FilterPill(
                             label: '+ 25€',
                             isSelected: priceFilter == 'high',
@@ -289,14 +289,14 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         ],
                       ),
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     // Results count
                     RichText(
                       text: TextSpan(
                         children: [
                           TextSpan(
                             text: '${filteredActivities.length}',
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                               color: Color(0xFF2563EB),
@@ -319,16 +319,16 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             ),
           ),
           SliverPadding(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             sliver: filteredActivities.isEmpty
                 ? SliverToBoxAdapter(
                     child: Center(
                       child: Padding(
-                        padding: EdgeInsets.symmetric(vertical: 40),
+                        padding: const EdgeInsets.symmetric(vertical: 40),
                         child: Column(
                           children: [
                             Icon(Icons.search, size: 48, color: Colors.grey[300]),
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
                             Text(
                               'Aucune activité trouvée',
                               style: TextStyle(
@@ -337,7 +337,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
-                            SizedBox(height: 8),
+                            const SizedBox(height: 8),
                             Text(
                               'Essayez d\'ajuster vos filtres',
                               style: TextStyle(color: Colors.grey[400], fontSize: 14),
@@ -367,8 +367,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             final id = activity.id;
                             if (!signedIn || user == null) {
                               setState(() {
-                                if (mockUser.favoriteIds.contains(id)) mockUser.favoriteIds.remove(id);
-                                else mockUser.favoriteIds.add(id);
+                                if (mockUser.favoriteIds.contains(id)) {
+                                  mockUser.favoriteIds.remove(id);
+                                } else {
+                                  mockUser.favoriteIds.add(id);
+                                }
                               });
                               return;
                             }
@@ -403,11 +406,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     ),
                   ),
           ),
-          SliverToBoxAdapter(child: SizedBox(height: 100)),
+          const SliverToBoxAdapter(child: SizedBox(height: 100)),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
-        items: [
+        items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Accueil'),
           BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: 'Réservations'),
           BottomNavigationBarItem(icon: Icon(Icons.account_circle), label: 'Profil'),
@@ -495,10 +498,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         final initial = user.email?.isNotEmpty == true ? user.email![0].toUpperCase() : 'U';
         return CircleAvatar(
           radius: 18,
-          backgroundColor: Color(0xFF2563EB),
+          backgroundColor: const Color(0xFF2563EB),
           child: Text(
             initial,
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
               fontSize: 16,
@@ -535,7 +538,7 @@ class _FilterPillState extends State<_FilterPill> with SingleTickerProviderState
   void initState() {
     super.initState();
     _animationController = AnimationController(
-      duration: Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 300),
       vsync: this,
     );
     _scaleAnimation = Tween<double>(begin: 1.0, end: 1.05).animate(
@@ -543,7 +546,7 @@ class _FilterPillState extends State<_FilterPill> with SingleTickerProviderState
     );
     _colorAnimation = ColorTween(
       begin: Colors.grey[200],
-      end: Color(0xFF2563EB),
+      end: const Color(0xFF2563EB),
     ).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeOut));
 
     if (widget.isSelected) {
@@ -579,10 +582,10 @@ class _FilterPillState extends State<_FilterPill> with SingleTickerProviderState
           animation: _colorAnimation,
           builder: (context, child) {
             return Container(
-              padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               decoration: BoxDecoration(
                 gradient: widget.isSelected
-                    ? LinearGradient(colors: [Color(0xFF2563EB), Color(0xFF1D4ED8)])
+                    ? const LinearGradient(colors: [Color(0xFF2563EB), Color(0xFF1D4ED8)])
                     : null,
                 color: widget.isSelected ? null : Colors.grey[100],
                 borderRadius: BorderRadius.circular(20),
@@ -593,9 +596,9 @@ class _FilterPillState extends State<_FilterPill> with SingleTickerProviderState
                 boxShadow: [
                   if (widget.isSelected)
                     BoxShadow(
-                      color: Color(0xFF2563EB).withOpacity(0.3),
+                      color: const Color(0xFF2563EB).withOpacity(0.3),
                       blurRadius: 8,
-                      offset: Offset(0, 4),
+                      offset: const Offset(0, 4),
                     )
                 ],
               ),
@@ -644,10 +647,10 @@ class _AnimatedActivityCardState extends State<_AnimatedActivityCard> with Singl
   void initState() {
     super.initState();
     _animationController = AnimationController(
-      duration: Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 500),
       vsync: this,
     );
-    _slideAnimation = Tween<Offset>(begin: Offset(0, 0.3), end: Offset.zero).animate(
+    _slideAnimation = Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
     );
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(

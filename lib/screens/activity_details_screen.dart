@@ -28,7 +28,7 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> with Widg
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _heartAnimationController = AnimationController(
-      duration: Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 500),
       vsync: this,
     );
     _heartScaleAnimation = Tween<double>(begin: 1.0, end: 1.3).animate(
@@ -130,16 +130,16 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> with Widg
                           top: 80,
                           left: 16,
                           child: Container(
-                            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                             decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(20)),
-                            child: Text('🎉 ${widget.activity.promotionText}', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                            child: Text('🎉 ${widget.activity.promotionText}', style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
                           ),
                         ),
                     ],
                   ),
                 ),
                 leading: IconButton(
-                  icon: Icon(Icons.arrow_back, color: Colors.white),
+                  icon: const Icon(Icons.arrow_back, color: Colors.white),
                   onPressed: widget.onBack,
                 ),
                 actions: [
@@ -157,14 +157,14 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> with Widg
               ),
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Card(
                         elevation: 2,
                         child: Padding(
-                          padding: EdgeInsets.all(16),
+                          padding: const EdgeInsets.all(16),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -177,21 +177,21 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> with Widg
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Text(widget.activity.name, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.grey[900])),
-                                        SizedBox(height: 12),
+                                        const SizedBox(height: 12),
                                         Row(
                                           children: [
                                             Container(
-                                              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                               decoration: BoxDecoration(color: Colors.blue[50], borderRadius: BorderRadius.circular(6)),
                                               child: Text(widget.activity.type, style: TextStyle(color: Colors.blue[700], fontSize: 12, fontWeight: FontWeight.w500)),
                                             ),
-                                            SizedBox(width: 12),
+                                            const SizedBox(width: 12),
                                             Row(
                                               children: [
                                                 Icon(Icons.star, size: 18, color: Colors.yellow[700]),
-                                                SizedBox(width: 4),
+                                                const SizedBox(width: 4),
                                                 Text(widget.activity.rating.toString(), style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey[900])),
-                                                SizedBox(width: 4),
+                                                const SizedBox(width: 4),
                                                 Text('(${widget.activity.reviews.length} avis)', style: TextStyle(color: Colors.grey[500], fontSize: 12)),
                                               ],
                                             ),
@@ -200,33 +200,33 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> with Widg
                                       ],
                                     ),
                                   ),
-                                  SizedBox(width: 12),
+                                  const SizedBox(width: 12),
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
                                       Text('Prix', style: TextStyle(color: Colors.grey[500], fontSize: 12)),
-                                      Text('${widget.activity.price}€', style: TextStyle(fontSize: 20, color: Colors.blue, fontWeight: FontWeight.bold)),
+                                      Text('${widget.activity.price}€', style: const TextStyle(fontSize: 20, color: Colors.blue, fontWeight: FontWeight.bold)),
                                     ],
                                   ),
                                 ],
                               ),
-                              SizedBox(height: 16),
+                              const SizedBox(height: 16),
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Icon(Icons.location_on, size: 20, color: Colors.grey[400]),
-                                  SizedBox(width: 12),
+                                  const SizedBox(width: 12),
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Text('Emplacement', style: TextStyle(color: Colors.grey[500], fontSize: 12)),
-                                        SizedBox(height: 4),
+                                        const SizedBox(height: 4),
                                         Text(widget.activity.location, style: TextStyle(color: Colors.grey[900], fontWeight: FontWeight.w500)),
-                                        SizedBox(height: 8),
+                                        const SizedBox(height: 8),
                                         GestureDetector(
                                           onTap: () => _openGoogleMaps(widget.activity.coordinates['lat'] ?? 0.0, widget.activity.coordinates['lng'] ?? 0.0),
-                                          child: Row(
+                                          child: const Row(
                                             children: [
                                               Icon(Icons.navigation, size: 14, color: Colors.blue),
                                               SizedBox(width: 4),
@@ -243,24 +243,24 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> with Widg
                           ),
                         ),
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       Card(
                         child: Padding(
-                          padding: EdgeInsets.all(16),
+                          padding: const EdgeInsets.all(16),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text('Description', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey[900])),
-                              SizedBox(height: 12),
+                              const SizedBox(height: 12),
                               Text(widget.activity.description, style: TextStyle(color: Colors.grey[600], height: 1.6)),
                             ],
                           ),
                         ),
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       Card(
                         child: Padding(
-                          padding: EdgeInsets.all(16),
+                          padding: const EdgeInsets.all(16),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -271,19 +271,19 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> with Widg
                                       Row(
                                     children: [
                                       Icon(Icons.star, size: 18, color: Colors.yellow[700]),
-                                      SizedBox(width: 4),
+                                      const SizedBox(width: 4),
                                           Text('${widget.activity.rating.toStringAsFixed(1)}/5', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey[900])),
                                     ],
                                   ),
                                 ],
                               ),
-                              SizedBox(height: 16),
+                              const SizedBox(height: 16),
                               StreamBuilder<List<Review>>(
                                 stream: ReviewService.streamReviews(widget.activity.id),
                                 builder: (context, snap) {
                                   final reviews = snap.data ?? widget.activity.reviews;
                                   if (reviews.isEmpty) {
-                                    return Center(child: Padding(padding: EdgeInsets.symmetric(vertical: 16), child: Text('Soyez le premier a laisser un avis !', style: TextStyle(color: Colors.grey[500]))));
+                                    return Center(child: Padding(padding: const EdgeInsets.symmetric(vertical: 16), child: Text('Soyez le premier a laisser un avis !', style: TextStyle(color: Colors.grey[500]))));
                                   }
                                   return Column(
                                     children: reviews.map((review) {
@@ -296,21 +296,21 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> with Widg
                           ),
                         ),
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       Card(
                         child: Padding(
-                          padding: EdgeInsets.all(16),
+                          padding: const EdgeInsets.all(16),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text('Laisser un avis', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey[900])),
-                              SizedBox(height: 8),
+                              const SizedBox(height: 8),
                               Row(
                                 children: List.generate(5, (i) {
                                   final idx = i + 1;
                                   return IconButton(
                                     padding: EdgeInsets.zero,
-                                    constraints: BoxConstraints(minWidth: 24),
+                                    constraints: const BoxConstraints(minWidth: 24),
                                     icon: Icon(Icons.star, color: idx <= _selectedRating ? Colors.yellow[700] : Colors.grey[300]),
                                     onPressed: () => setState(() => _selectedRating = idx),
                                   );
@@ -320,9 +320,9 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> with Widg
                                 controller: _reviewController,
                                 minLines: 2,
                                 maxLines: 4,
-                                decoration: InputDecoration(hintText: 'Votre avis (facultatif)'),
+                                decoration: const InputDecoration(hintText: 'Votre avis (facultatif)'),
                               ),
-                              SizedBox(height: 12),
+                              const SizedBox(height: 12),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
@@ -330,7 +330,7 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> with Widg
                                     onPressed: () async {
                                       final current = fb_auth.FirebaseAuth.instance.currentUser;
                                       if (current == null) {
-                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Connectez-vous pour laisser un avis')));
+                                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Connectez-vous pour laisser un avis')));
                                         return;
                                       }
                                       // Try to include an avatar: prefer FirebaseAuth.photoURL, fallback to users/{uid}.avatar
@@ -359,12 +359,12 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> with Widg
                                         await ReviewService.addReview(widget.activity.id, review);
                                         _reviewController.clear();
                                         setState(() => _selectedRating = 5);
-                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Merci pour votre avis')));
+                                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Merci pour votre avis')));
                                       } catch (e) {
                                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Impossible d\'envoyer l\'avis: $e')));
                                       }
                                     },
-                                    child: Text('Envoyer'),
+                                    child: const Text('Envoyer'),
                                   ),
                                 ],
                               ),
@@ -372,21 +372,21 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> with Widg
                           ),
                         ),
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       Card(
                         child: Padding(
-                          padding: EdgeInsets.all(16),
+                          padding: const EdgeInsets.all(16),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text('Horaires disponibles', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey[900])),
-                              SizedBox(height: 12),
+                              const SizedBox(height: 12),
                               Wrap(
                                 spacing: 8,
                                 runSpacing: 8,
                                 children: widget.activity.availableSlots.take(4).map((slot) {
                                   return Container(
-                                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                                     decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(8)),
                                     child: Text(slot, style: TextStyle(color: Colors.grey[700], fontWeight: FontWeight.w500)),
                                   );
@@ -394,7 +394,7 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> with Widg
                                 (widget.activity.availableSlots.length > 4
                                     ? [
                                         Container(
-                                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                                           decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(8)),
                                           child: Text('+${widget.activity.availableSlots.length - 4} autres', style: TextStyle(color: Colors.grey[500], fontWeight: FontWeight.w500)),
                                         ),
@@ -405,7 +405,7 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> with Widg
                           ),
                         ),
                       ),
-                      SizedBox(height: 100),
+                      const SizedBox(height: 100),
                     ],
                   ),
                 ),
@@ -417,7 +417,7 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> with Widg
             left: 0,
             right: 0,
             child: Container(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Colors.white,
                 border: Border(top: BorderSide(color: Colors.grey[300]!)),
@@ -427,11 +427,11 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> with Widg
                 child: ElevatedButton(
                   onPressed: widget.onReserve,
                   style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                     backgroundColor: Colors.blue,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
-                  child: Text('Réserver maintenant', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                  child: const Text('Réserver maintenant', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
                 ),
               ),
             ),
@@ -462,7 +462,7 @@ class _ReviewTile extends StatelessWidget {
                 return _buildAvatarWidget(currentAvatar);
               },
             ),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -472,13 +472,13 @@ class _ReviewTile extends StatelessWidget {
             ),
           ],
         ),
-        SizedBox(height: 6),
+        const SizedBox(height: 6),
         Row(children: List.generate(5, (i) => Icon(Icons.star, size: 14, color: i < review.rating ? Colors.yellow[700] : Colors.grey[300]))),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         Text(review.comment, style: TextStyle(color: Colors.grey[600], height: 1.5)),
-        SizedBox(height: 12),
-        Divider(height: 1),
-        SizedBox(height: 12),
+        const SizedBox(height: 12),
+        const Divider(height: 1),
+        const SizedBox(height: 12),
       ],
     );
   }
@@ -500,7 +500,7 @@ class _ReviewTile extends StatelessWidget {
 
   Widget _buildAvatarWidget(String? avatarUrl) {
     if (avatarUrl == null || avatarUrl.isEmpty) {
-      return CircleAvatar(
+      return const CircleAvatar(
         radius: 16,
         child: Text('?', style: TextStyle(fontSize: 12)),
       );
@@ -527,6 +527,6 @@ class _ReviewTile extends StatelessWidget {
 
     // Fallback: show first 2 characters
     final label = avatarUrl.length <= 2 ? avatarUrl : avatarUrl.substring(0, 2);
-    return CircleAvatar(radius: 16, child: Text(label, style: TextStyle(fontSize: 12)));
+    return CircleAvatar(radius: 16, child: Text(label, style: const TextStyle(fontSize: 12)));
   }
 }

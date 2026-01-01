@@ -22,7 +22,7 @@ class _ActivityCardState extends State<ActivityCard> with SingleTickerProviderSt
   void initState() {
     super.initState();
     _animationController = AnimationController(
-      duration: Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 300),
       vsync: this,
     );
     _scaleAnimation = Tween<double>(begin: 1.0, end: 1.05).animate(
@@ -74,7 +74,7 @@ class _ActivityCardState extends State<ActivityCard> with SingleTickerProviderSt
                   children: [
                     // Image with overlay gradient
                     ClipRRect(
-                      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
                       child: Stack(
                         children: [
                           Image.network(
@@ -121,24 +121,24 @@ class _ActivityCardState extends State<ActivityCard> with SingleTickerProviderSt
                         top: 12,
                         right: 12,
                         child: Container(
-                          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                           decoration: BoxDecoration(
-                            gradient: LinearGradient(
+                            gradient: const LinearGradient(
                               colors: [Color(0xFFFF6B6B), Color(0xFFEE5A6F)],
                             ),
                             borderRadius: BorderRadius.circular(20),
                             boxShadow: [
-                              BoxShadow(color: Color(0xFFFF6B6B).withOpacity(0.4), blurRadius: 8, offset: Offset(0, 4))
+                              BoxShadow(color: const Color(0xFFFF6B6B).withOpacity(0.4), blurRadius: 8, offset: const Offset(0, 4))
                             ],
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.local_offer, color: Colors.white, size: 14),
-                              SizedBox(width: 4),
+                              const Icon(Icons.local_offer, color: Colors.white, size: 14),
+                              const SizedBox(width: 4),
                               Text(
                                 widget.activity.promotionText ?? 'Promo',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 11,
                                   fontWeight: FontWeight.bold,
@@ -165,7 +165,7 @@ class _ActivityCardState extends State<ActivityCard> with SingleTickerProviderSt
                 ),
                 // Content section
                 Padding(
-                  padding: EdgeInsets.all(14),
+                  padding: const EdgeInsets.all(14),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
@@ -181,12 +181,12 @@ class _ActivityCardState extends State<ActivityCard> with SingleTickerProviderSt
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      SizedBox(height: 6),
+                      const SizedBox(height: 6),
                       // Location
                       Row(
                         children: [
                           Icon(Icons.location_on, size: 13, color: Colors.grey[500]),
-                          SizedBox(width: 4),
+                          const SizedBox(width: 4),
                           Expanded(
                             child: Text(
                               widget.activity.location,
@@ -200,23 +200,23 @@ class _ActivityCardState extends State<ActivityCard> with SingleTickerProviderSt
                           ),
                         ],
                       ),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       // Type badge and rating row
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Container(
-                            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
-                                colors: [Color(0xFF2563EB).withOpacity(0.1), Color(0xFF3B82F6).withOpacity(0.1)],
+                                colors: [const Color(0xFF2563EB).withOpacity(0.1), const Color(0xFF3B82F6).withOpacity(0.1)],
                               ),
                               borderRadius: BorderRadius.circular(6),
-                              border: Border.all(color: Color(0xFF3B82F6).withOpacity(0.3)),
+                              border: Border.all(color: const Color(0xFF3B82F6).withOpacity(0.3)),
                             ),
                             child: Text(
                               widget.activity.type,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: Color(0xFF2563EB),
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
@@ -227,7 +227,7 @@ class _ActivityCardState extends State<ActivityCard> with SingleTickerProviderSt
                           ),
                           // Rating with stars
                           Container(
-                            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
                               color: Colors.amber.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(6),
@@ -236,7 +236,7 @@ class _ActivityCardState extends State<ActivityCard> with SingleTickerProviderSt
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Icon(Icons.star, size: 13, color: Colors.amber[700]),
-                                SizedBox(width: 3),
+                                const SizedBox(width: 3),
                                 Text(
                                   widget.activity.rating.toStringAsFixed(1),
                                   style: TextStyle(
@@ -250,7 +250,7 @@ class _ActivityCardState extends State<ActivityCard> with SingleTickerProviderSt
                           ),
                         ],
                       ),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       // Divider
                       Container(
                         height: 1,
@@ -260,7 +260,7 @@ class _ActivityCardState extends State<ActivityCard> with SingleTickerProviderSt
                           ),
                         ),
                       ),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       // Price row
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -276,16 +276,16 @@ class _ActivityCardState extends State<ActivityCard> with SingleTickerProviderSt
                                 ),
                               ),
                               Container(
-                                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                 decoration: BoxDecoration(
-                                  gradient: LinearGradient(
+                                  gradient: const LinearGradient(
                                     colors: [Color(0xFF2563EB), Color(0xFF1D4ED8)],
                                   ),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
                                   '${widget.activity.price}€',
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,
@@ -326,7 +326,7 @@ class _FavoriteButtonState extends State<_FavoriteButton> with SingleTickerProvi
   void initState() {
     super.initState();
     _heartAnimationController = AnimationController(
-      duration: Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 500),
       vsync: this,
     );
     _scaleAnimation = Tween<double>(begin: 1.0, end: 1.2).animate(
@@ -353,7 +353,7 @@ class _FavoriteButtonState extends State<_FavoriteButton> with SingleTickerProvi
     return ScaleTransition(
       scale: _scaleAnimation,
       child: Container(
-        padding: EdgeInsets.all(8),
+        padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.95),
           shape: BoxShape.circle,
@@ -361,7 +361,7 @@ class _FavoriteButtonState extends State<_FavoriteButton> with SingleTickerProvi
             BoxShadow(
               color: Colors.black.withOpacity(0.15),
               blurRadius: 8,
-              offset: Offset(0, 2),
+              offset: const Offset(0, 2),
             )
           ],
         ),

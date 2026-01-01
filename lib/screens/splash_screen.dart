@@ -17,13 +17,13 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   void initState() {
     super.initState();
     _animationController = AnimationController(
-      duration: Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 1500),
       vsync: this,
     );
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(_animationController);
     _animationController.forward();
 
-    Timer(Duration(seconds: 3), () {
+    Timer(const Duration(seconds: 3), () {
       widget.onContinue();
     });
   }
@@ -38,7 +38,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -53,16 +53,16 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
               children: [
                 // Animated star icon
                 Container(
-                  padding: EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: Colors.white.withOpacity(0.2),
                   ),
-                  child: Icon(Icons.star, color: Colors.white, size: 60),
+                  child: const Icon(Icons.star, color: Colors.white, size: 60),
                 ),
-                SizedBox(height: 32),
+                const SizedBox(height: 32),
                 // App name
-                Text(
+                const Text(
                   'Reservi',
                   style: TextStyle(
                     fontSize: 48,
@@ -71,7 +71,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                     letterSpacing: 2,
                   ),
                 ),
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
                 // Tagline
                 Text(
                   'Réservez vos activités préférées',
@@ -81,9 +81,9 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                     fontStyle: FontStyle.italic,
                   ),
                 ),
-                SizedBox(height: 60),
+                const SizedBox(height: 60),
                 // Loading indicator
-                SizedBox(
+                const SizedBox(
                   width: 24,
                   height: 24,
                   child: CircularProgressIndicator(

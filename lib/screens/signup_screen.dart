@@ -29,11 +29,11 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
   @override
   void initState() {
     super.initState();
-    _headerAnimController = AnimationController(duration: Duration(milliseconds: 800), vsync: this);
-    _cardAnimController = AnimationController(duration: Duration(milliseconds: 600), vsync: this);
-    _fieldAnimController = AnimationController(duration: Duration(milliseconds: 300), vsync: this);
+    _headerAnimController = AnimationController(duration: const Duration(milliseconds: 800), vsync: this);
+    _cardAnimController = AnimationController(duration: const Duration(milliseconds: 600), vsync: this);
+    _fieldAnimController = AnimationController(duration: const Duration(milliseconds: 300), vsync: this);
 
-    _headerSlideAnimation = Tween<Offset>(begin: Offset(-0.5, 0), end: Offset.zero).animate(
+    _headerSlideAnimation = Tween<Offset>(begin: const Offset(-0.5, 0), end: Offset.zero).animate(
       CurvedAnimation(parent: _headerAnimController, curve: Curves.easeOut),
     );
 
@@ -42,7 +42,7 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
     );
 
     _headerAnimController.forward();
-    Future.delayed(Duration(milliseconds: 300), () => _cardAnimController.forward());
+    Future.delayed(const Duration(milliseconds: 300), () => _cardAnimController.forward());
   }
 
   @override
@@ -54,12 +54,29 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
   }
 
   Future<void> handleSubmit() async {
+    final name = nameController.text.trim();
+    final email = emailController.text.trim();
+    final password = passwordController.text;
+    final confirm = confirmPasswordController.text;
+
     setState(() => error = null);
-    if (passwordController.text != confirmPasswordController.text) {
+
+    if (name.isEmpty || email.isEmpty || password.isEmpty || confirm.isEmpty) {
+      setState(() => error = 'Veuillez remplir tous les champs');
+      return;
+    }
+    if (!_isValidEmail(email)) {
+      setState(() => error = 'Email invalide');
+      return;
+    }
+    if (password.length < 6) {
+      setState(() => error = 'Le mot de passe doit contenir au moins 6 caractères');
+      return;
+    }
+    if (password != confirm) {
       setState(() => error = 'Les mots de passe ne correspondent pas');
       return;
     }
-    if (nameController.text.isEmpty || emailController.text.isEmpty || passwordController.text.isEmpty) return;
 
     setState(() => isLoading = true);
 
@@ -67,15 +84,15 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
     try {
       final auth = FirebaseAuth.instance;
       final cred = await auth.createUserWithEmailAndPassword(
-        email: emailController.text.trim(),
-        password: passwordController.text,
+        email: email,
+        password: password,
       );
 
       // attempt to create user document in Firestore (non-fatal)
       try {
         await FirebaseFirestore.instance.collection('users').doc(cred.user!.uid).set({
-          'name': nameController.text.trim(),
-          'email': emailController.text.trim(),
+          'name': name,
+          'email': email,
           'favoriteIds': [],
         });
       } catch (e) {
@@ -83,8 +100,8 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
       }
 
       // update local mockUser for UI convenience
-      mockUser.name = nameController.text.trim();
-      mockUser.email = emailController.text.trim();
+      mockUser.name = name;
+      mockUser.email = email;
 
       widget.onSignup();
       return;
@@ -103,12 +120,17 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
     }
   }
 
+  bool _isValidEmail(String value) {
+    const pattern = r'^.+@[^\.].*\.[a-z]{2,}$';
+    return RegExp(pattern, caseSensitive: false).hasMatch(value);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
         height: MediaQuery.of(context).size.height,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -118,10 +140,10 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
         child: SafeArea(
           child: SingleChildScrollView(
             child: Padding(
-              padding: EdgeInsets.all(24),
+              padding: const EdgeInsets.all(24),
               child: Column(
                 children: [
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   // Animated header
                   SlideTransition(
                     position: _headerSlideAnimation,
@@ -129,7 +151,7 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Container(
-                          padding: EdgeInsets.all(16),
+                          padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             color: Colors.white.withOpacity(0.95),
                             borderRadius: BorderRadius.circular(16),
@@ -137,14 +159,14 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
                               BoxShadow(
                                 color: Colors.black.withOpacity(0.15),
                                 blurRadius: 16,
-                                offset: Offset(0, 8),
+                                offset: const Offset(0, 8),
                               )
                             ],
                           ),
-                          child: Icon(Icons.star, color: Color(0xFF9333EA), size: 32),
+                          child: const Icon(Icons.star, color: Color(0xFF9333EA), size: 32),
                         ),
-                        SizedBox(width: 12),
-                        Text(
+                        const SizedBox(width: 12),
+                        const Text(
                           'Reservi',
                           style: TextStyle(
                             fontSize: 28,
@@ -156,7 +178,7 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
                       ],
                     ),
                   ),
-                  SizedBox(height: 40),
+                  const SizedBox(height: 40),
                   // Animated card with form
                   FadeTransition(
                     opacity: _cardFadeAnimation,
@@ -164,7 +186,7 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
                       elevation: 0,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                       child: Padding(
-                        padding: EdgeInsets.all(28),
+                        padding: const EdgeInsets.all(28),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -177,7 +199,7 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
                                     child: MouseRegion(
                                       cursor: SystemMouseCursors.click,
                                       child: Container(
-                                        padding: EdgeInsets.all(8),
+                                        padding: const EdgeInsets.all(8),
                                         decoration: BoxDecoration(
                                           color: Colors.grey[100],
                                           borderRadius: BorderRadius.circular(10),
@@ -187,8 +209,8 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
                                     ),
                                   )
                                 else
-                                  SizedBox(width: 40),
-                                SizedBox(width: 12),
+                                  const SizedBox(width: 40),
+                                const SizedBox(width: 12),
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -208,55 +230,55 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
                                 ),
                               ],
                             ),
-                            SizedBox(height: 24),
+                            const SizedBox(height: 24),
                             // Error message
                             if (error != null) ...[
                               AnimatedContainer(
-                                duration: Duration(milliseconds: 300),
-                                padding: EdgeInsets.all(14),
+                                duration: const Duration(milliseconds: 300),
+                                padding: const EdgeInsets.all(14),
                                 decoration: BoxDecoration(
-                                  color: Color(0xFFFEE2E2),
+                                  color: const Color(0xFFFEE2E2),
                                   borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(color: Color(0xFFFECACA), width: 2),
+                                  border: Border.all(color: const Color(0xFFFECACA), width: 2),
                                 ),
                                 child: Row(
                                   children: [
-                                    Icon(Icons.error_outline, color: Color(0xFFDC2626), size: 20),
-                                    SizedBox(width: 10),
+                                    const Icon(Icons.error_outline, color: Color(0xFFDC2626), size: 20),
+                                    const SizedBox(width: 10),
                                     Expanded(
                                       child: Text(
                                         error!,
-                                        style: TextStyle(color: Color(0xFFB91C1C), fontWeight: FontWeight.w500),
+                                        style: const TextStyle(color: Color(0xFFB91C1C), fontWeight: FontWeight.w500),
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
-                              SizedBox(height: 18),
+                              const SizedBox(height: 18),
                             ],
                             // Name field
                             _buildLabel('Nom complet'),
-                            SizedBox(height: 8),
+                            const SizedBox(height: 8),
                             _AnimatedTextField(
                               controller: nameController,
                               hintText: 'Votre nom',
                               prefixIcon: Icons.person_outline,
                               enabled: !isLoading,
                             ),
-                            SizedBox(height: 18),
+                            const SizedBox(height: 18),
                             // Email field
                             _buildLabel('Email'),
-                            SizedBox(height: 8),
+                            const SizedBox(height: 8),
                             _AnimatedTextField(
                               controller: emailController,
                               hintText: 'votre@email.com',
                               prefixIcon: Icons.email_outlined,
                               enabled: !isLoading,
                             ),
-                            SizedBox(height: 18),
+                            const SizedBox(height: 18),
                             // Password field
                             _buildLabel('Mot de passe'),
-                            SizedBox(height: 8),
+                            const SizedBox(height: 8),
                             _AnimatedTextField(
                               controller: passwordController,
                               hintText: '••••••••',
@@ -264,10 +286,10 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
                               obscureText: true,
                               enabled: !isLoading,
                             ),
-                            SizedBox(height: 18),
+                            const SizedBox(height: 18),
                             // Confirm password field
                             _buildLabel('Confirmer mot de passe'),
-                            SizedBox(height: 8),
+                            const SizedBox(height: 8),
                             _AnimatedTextField(
                               controller: confirmPasswordController,
                               hintText: '••••••••',
@@ -275,7 +297,7 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
                               obscureText: true,
                               enabled: !isLoading,
                             ),
-                            SizedBox(height: 28),
+                            const SizedBox(height: 28),
                             // Submit button
                             _AnimatedButton(
                               onPressed: isLoading ? null : handleSubmit,
@@ -286,7 +308,7 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
                       ),
                     ),
                   ),
-                  SizedBox(height: 40),
+                  const SizedBox(height: 40),
                 ],
               ),
             ),
@@ -338,7 +360,7 @@ class _AnimatedTextFieldState extends State<_AnimatedTextField> with SingleTicke
   void initState() {
     super.initState();
     _animationController = AnimationController(
-      duration: Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 300),
       vsync: this,
     );
 
@@ -348,7 +370,7 @@ class _AnimatedTextFieldState extends State<_AnimatedTextField> with SingleTicke
 
     _colorAnimation = ColorTween(
       begin: Colors.grey[300],
-      end: Color(0xFF2563EB),
+      end: const Color(0xFF2563EB),
     ).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeOut));
   }
 
@@ -382,18 +404,18 @@ class _AnimatedTextFieldState extends State<_AnimatedTextField> with SingleTicke
               enabled: widget.enabled,
               decoration: InputDecoration(
                 hintText: widget.hintText,
-                prefixIcon: Icon(widget.prefixIcon, color: isFocused ? Color(0xFF2563EB) : Colors.grey[400]),
+                prefixIcon: Icon(widget.prefixIcon, color: isFocused ? const Color(0xFF2563EB) : Colors.grey[400]),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide(color: Colors.grey[300]!),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Color(0xFF2563EB), width: 2),
+                  borderSide: const BorderSide(color: Color(0xFF2563EB), width: 2),
                 ),
                 filled: true,
-                fillColor: isFocused ? Color(0xFF2563EB).withOpacity(0.03) : Colors.grey[50],
-                contentPadding: EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+                fillColor: isFocused ? const Color(0xFF2563EB).withOpacity(0.03) : Colors.grey[50],
+                contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
                 hintStyle: TextStyle(color: Colors.grey[400]),
               ),
             );
@@ -427,7 +449,7 @@ class _AnimatedButtonState extends State<_AnimatedButton> with SingleTickerProvi
   void initState() {
     super.initState();
     _bounceController = AnimationController(
-      duration: Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 500),
       vsync: this,
     );
 
@@ -457,23 +479,23 @@ class _AnimatedButtonState extends State<_AnimatedButton> with SingleTickerProvi
         scale: _bounceAnimation,
         child: Container(
           width: double.infinity,
-          padding: EdgeInsets.symmetric(vertical: 14),
+          padding: const EdgeInsets.symmetric(vertical: 14),
           decoration: BoxDecoration(
             gradient: widget.isLoading
                 ? LinearGradient(colors: [Colors.grey[400]!, Colors.grey[500]!])
-                : LinearGradient(colors: [Color(0xFF2563EB), Color(0xFF1D4ED8)]),
+                : const LinearGradient(colors: [Color(0xFF2563EB), Color(0xFF1D4ED8)]),
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: widget.isLoading ? Colors.grey.withOpacity(0.3) : Color(0xFF2563EB).withOpacity(0.3),
+                color: widget.isLoading ? Colors.grey.withOpacity(0.3) : const Color(0xFF2563EB).withOpacity(0.3),
                 blurRadius: 12,
-                offset: Offset(0, 4),
+                offset: const Offset(0, 4),
               )
             ],
           ),
           child: Center(
             child: widget.isLoading
-                ? SizedBox(
+                ? const SizedBox(
                     height: 24,
                     width: 24,
                     child: CircularProgressIndicator(
@@ -481,7 +503,7 @@ class _AnimatedButtonState extends State<_AnimatedButton> with SingleTickerProvi
                       valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                     ),
                   )
-                : Text(
+                : const Text(
                     'Créer un compte',
                     style: TextStyle(
                       color: Colors.white,
