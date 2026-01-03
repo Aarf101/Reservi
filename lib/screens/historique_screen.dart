@@ -3,10 +3,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../data/mock_data.dart';
 import '../types.dart';
+import '../services/activity_service.dart';
 
 class HistoriqueScreen extends StatefulWidget {
   final VoidCallback onBack;
-  const HistoriqueScreen({Key? key, required this.onBack}) : super(key: key);
+  final Function(Activity activity, DateTime date, String time, int participants, String reservationId)? onPay;
+  const HistoriqueScreen({Key? key, required this.onBack, this.onPay}) : super(key: key);
 
   @override
   _HistoriqueScreenState createState() => _HistoriqueScreenState();
@@ -51,60 +53,69 @@ class _HistoriqueScreenState extends State<HistoriqueScreen> with SingleTickerPr
       ),
       body: user == null
           ? _buildFromMock()
-          : StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-              stream: FirebaseFirestore.instance
-                  .collection('users')
-                  .doc(user.uid)
-                  .collection('reservations')
-                  .orderBy('date', descending: false)
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator());
-                if (!snapshot.hasData || snapshot.data == null || snapshot.data!.docs.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+          : StreamBuilder<List<Activity>>(
+              stream: ActivityService.activitiesStream(),
+              builder: (context, activitiesSnapshot) {
+                final activities = activitiesSnapshot.data ?? mockActivities;
+                
+                return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                  stream: FirebaseFirestore.instance
+                      .collection('users')
+                      .doc(user.uid)
+                      .collection('reservations')
+                      .orderBy('date', descending: false)
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator());
+                    if (!snapshot.hasData || snapshot.data == null || snapshot.data!.docs.isEmpty) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.calendar_month, size: 64, color: Colors.grey[400]),
+                            const SizedBox(height: 16),
+                            Text('Aucune réservation', style: TextStyle(color: Colors.grey[600], fontSize: 16)),
+                            const SizedBox(height: 8),
+                            Text('Réserve une activité pour voir tes réservations', style: TextStyle(color: Colors.grey[400], fontSize: 14)),
+                          ],
+                        ),
+                      );
+                    }
+
+                    final docs = snapshot.data!.docs;
+                    final reservations = docs.map((d) {
+                      final data = d.data();
+                      final Timestamp? ts = data['date'] is Timestamp ? data['date'] as Timestamp : null;
+                      final date = ts != null ? ts.toDate() : DateTime.now();
+                      final participantsRaw = data['participants'];
+                      final int participants = participantsRaw is int ? participantsRaw : (participantsRaw is double ? participantsRaw.toInt() : 1);
+                      final totalRaw = data['totalPrice'];
+                      final double totalPrice = totalRaw is double ? totalRaw : (totalRaw is int ? totalRaw.toDouble() : 0.0);
+
+                      final isPaid = data['isPaid'] as bool? ?? false;
+                      return Reservation(
+                        id: d.id,
+                        activityId: data['activityId'] ?? '',
+                        date: date,
+                        time: data['time'] ?? '',
+                        status: data['status'] ?? 'upcoming',
+                        participants: participants,
+                        totalPrice: totalPrice,
+                        isPaid: isPaid,
+                      );
+                    }).toList();
+
+                    final upcomingReservations = reservations.where((r) => r.date.isAfter(DateTime.now())).toList();
+                    final pastReservations = reservations.where((r) => r.date.isBefore(DateTime.now())).toList();
+
+                    return TabBarView(
+                      controller: _tabController,
                       children: [
-                        Icon(Icons.calendar_month, size: 64, color: Colors.grey[400]),
-                        const SizedBox(height: 16),
-                        Text('Aucune réservation', style: TextStyle(color: Colors.grey[600], fontSize: 16)),
-                        const SizedBox(height: 8),
-                        Text('Réserve une activité pour voir tes réservations', style: TextStyle(color: Colors.grey[400], fontSize: 14)),
+                        _buildReservationList(upcomingReservations, isUpcoming: true, activities: activities),
+                        _buildReservationList(pastReservations, isUpcoming: false, activities: activities),
                       ],
-                    ),
-                  );
-                }
-
-                final docs = snapshot.data!.docs;
-                final reservations = docs.map((d) {
-                  final data = d.data();
-                  final Timestamp? ts = data['date'] is Timestamp ? data['date'] as Timestamp : null;
-                  final date = ts != null ? ts.toDate() : DateTime.now();
-                  final participantsRaw = data['participants'];
-                  final int participants = participantsRaw is int ? participantsRaw : (participantsRaw is double ? participantsRaw.toInt() : 1);
-                  final totalRaw = data['totalPrice'];
-                  final double totalPrice = totalRaw is double ? totalRaw : (totalRaw is int ? totalRaw.toDouble() : 0.0);
-
-                  return Reservation(
-                    id: d.id,
-                    activityId: data['activityId'] ?? '',
-                    date: date,
-                    time: data['time'] ?? '',
-                    status: data['status'] ?? 'upcoming',
-                    participants: participants,
-                    totalPrice: totalPrice,
-                  );
-                }).toList();
-
-                final upcomingReservations = reservations.where((r) => r.date.isAfter(DateTime.now())).toList();
-                final pastReservations = reservations.where((r) => r.date.isBefore(DateTime.now())).toList();
-
-                return TabBarView(
-                  controller: _tabController,
-                  children: [
-                    _buildReservationList(upcomingReservations, isUpcoming: true),
-                    _buildReservationList(pastReservations, isUpcoming: false),
-                  ],
+                    );
+                  },
                 );
               },
             ),
@@ -134,13 +145,13 @@ class _HistoriqueScreenState extends State<HistoriqueScreen> with SingleTickerPr
     return TabBarView(
       controller: _tabController,
       children: [
-        _buildReservationList(upcomingReservations, isUpcoming: true),
-        _buildReservationList(pastReservations, isUpcoming: false),
+        _buildReservationList(upcomingReservations, isUpcoming: true, activities: mockActivities),
+        _buildReservationList(pastReservations, isUpcoming: false, activities: mockActivities),
       ],
     );
   }
 
-  Widget _buildReservationList(List reservations, {required bool isUpcoming}) {
+  Widget _buildReservationList(List reservations, {required bool isUpcoming, required List<Activity> activities}) {
     if (reservations.isEmpty) {
       return Center(
         child: Text(
@@ -154,7 +165,7 @@ class _HistoriqueScreenState extends State<HistoriqueScreen> with SingleTickerPr
               itemCount: reservations.length,
               itemBuilder: (context, index) {
                 final reservation = reservations[index];
-                final activity = mockActivities.firstWhere((a) => a.id == reservation.activityId, orElse: () => mockActivities[0]);
+                final activity = activities.firstWhere((a) => a.id == reservation.activityId, orElse: () => mockActivities[0]);
 
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12),
@@ -228,6 +239,41 @@ class _HistoriqueScreenState extends State<HistoriqueScreen> with SingleTickerPr
                               Text('${reservation.totalPrice}€', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey[900], fontSize: 16)),
                             ],
                           ),
+                          if (!reservation.isPaid && isUpcoming && widget.onPay != null) ...[
+                            const SizedBox(height: 12),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton.icon(
+                                onPressed: () => widget.onPay!(activity, reservation.date, reservation.time, reservation.participants, reservation.id),
+                                icon: const Icon(Icons.payment, size: 18),
+                                label: const Text('Payer maintenant'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF2563EB),
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                ),
+                              ),
+                            ),
+                          ],
+                          if (reservation.isPaid && isUpcoming) ...[
+                            const SizedBox(height: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: Colors.green[50],
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(color: Colors.green[300]!),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.check_circle, size: 16, color: Colors.green[700]),
+                                  const SizedBox(width: 6),
+                                  Text('Payé', style: TextStyle(color: Colors.green[700], fontSize: 12, fontWeight: FontWeight.w500)),
+                                ],
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ),

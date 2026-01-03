@@ -158,6 +158,7 @@ class _Reservi1AppState extends State<Reservi1App> {
           participants: selectedParticipants,
           onSuccess: () => setScreen('success'),
           onBack: () => setScreen('confirmation'),
+          reservationId: selectedReservationId,
         );
         break;
       case 'success':
@@ -170,7 +171,17 @@ class _Reservi1AppState extends State<Reservi1App> {
         );
         break;
       case 'historique':
-        screenWidget = HistoriqueScreen(onBack: () => setScreen('home'));
+        screenWidget = HistoriqueScreen(
+          onBack: () => setScreen('home'),
+          onPay: (activity, date, time, participants, reservationId) {
+            selectedActivity = activity;
+            selectedDate = date;
+            selectedTime = time;
+            selectedParticipants = participants;
+            selectedReservationId = reservationId;
+            setScreen('payment');
+          },
+        );
         break;
       case 'profil':
         screenWidget = ProfilScreen(

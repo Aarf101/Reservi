@@ -36,6 +36,7 @@ final mockActivities = [
     coordinates: {'lat': 47.2184, 'lng': -1.5536},
     hasPromotion: true,
     promotionText: '2e partie à -50%',
+    center: 'Centre Commercial Beaulieu',
   ),
   Activity(
     id: '2',
@@ -52,6 +53,7 @@ final mockActivities = [
     coordinates: {'lat': 47.2184, 'lng': -1.5536},
     hasPromotion: false,
     promotionText: null,
+    center: 'Centre Commercial Beaulieu',
   ),
   Activity(
     id: '3',
@@ -68,6 +70,7 @@ final mockActivities = [
     coordinates: {'lat': 47.2184, 'lng': -1.5536},
     hasPromotion: true,
     promotionText: '-2€ pour les étudiants',
+    center: 'Centre Commercial Beaulieu',
   ),
   Activity(
     id: '4',
@@ -84,6 +87,7 @@ final mockActivities = [
     coordinates: {'lat': 48.8566, 'lng': 2.3522},
     hasPromotion: false,
     promotionText: null,
+    center: 'Centre Commercial Paris',
   ),
 ];
 
@@ -103,6 +107,7 @@ final mockUser = User(
       status: 'upcoming',
       participants: 2,
       totalPrice: 30,
+      isPaid: true,
     ),
     Reservation(
       id: 'res2',
@@ -112,6 +117,7 @@ final mockUser = User(
       status: 'past',
       participants: 4,
       totalPrice: 100,
+      isPaid: true,
     ),
   ],
 );

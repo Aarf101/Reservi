@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../types.dart';
 import '../data/mock_data.dart';
+import '../services/reservation_service.dart';
 
 class PaymentScreen extends StatefulWidget {
   final Activity activity;
@@ -11,19 +12,24 @@ class PaymentScreen extends StatefulWidget {
   final int participants;
   final VoidCallback onSuccess;
   final VoidCallback onBack;
-  const PaymentScreen({Key? key, required this.activity, required this.date, required this.time, required this.participants, required this.onSuccess, required this.onBack}) : super(key: key);
+  final String? reservationId;
+  const PaymentScreen({Key? key, required this.activity, required this.date, required this.time, required this.participants, required this.onSuccess, required this.onBack, this.reservationId}) : super(key: key);
 
   @override
   _PaymentScreenState createState() => _PaymentScreenState();
 }
 
-class _PaymentScreenState extends State<PaymentScreen> {
+class _PaymentScreenState extends State<PaymentScreen> with SingleTickerProviderStateMixin {
   bool isProcessing = false;
   final cardNumberController = TextEditingController();
   final expiryController = TextEditingController();
   final cvvController = TextEditingController();
   final nameController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  String? reservationId;
+  late AnimationController _animationController;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _fadeAnimation;
 
   String _formatCardNumber(String value) {
     String v = value.replaceAll(' ', '').replaceAll(RegExp(r'[^0-9]'), '');
@@ -43,6 +49,149 @@ class _PaymentScreenState extends State<PaymentScreen> {
     }
     return v;
   }
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 600),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
+    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
+    );
+    _animationController.forward();
+    if (widget.reservationId != null) {
+      setState(() {
+        reservationId = widget.reservationId;
+      });
+    } else {
+      _findReservationId();
+    }
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    cardNumberController.dispose();
+    expiryController.dispose();
+    cvvController.dispose();
+    nameController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _findReservationId() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+    
+    try {
+      final startOfDay = DateTime(widget.date.year, widget.date.month, widget.date.day);
+      final endOfDay = DateTime(widget.date.year, widget.date.month, widget.date.day, 23, 59, 59);
+      final startTimestamp = Timestamp.fromDate(startOfDay);
+      final endTimestamp = Timestamp.fromDate(endOfDay);
+      
+      final reservationsSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .collection('reservations')
+          .where('activityId', isEqualTo: widget.activity.id)
+          .where('date', isGreaterThanOrEqualTo: startTimestamp)
+          .where('date', isLessThanOrEqualTo: endTimestamp)
+          .where('time', isEqualTo: widget.time)
+          .orderBy('createdAt', descending: true)
+          .limit(1)
+          .get();
+      
+      if (reservationsSnapshot.docs.isNotEmpty) {
+        setState(() {
+          reservationId = reservationsSnapshot.docs.first.id;
+        });
+      }
+    } catch (e) {
+      print('Error finding reservation: $e');
+      // Try without orderBy if it fails
+      try {
+        final startOfDay = DateTime(widget.date.year, widget.date.month, widget.date.day);
+        final endOfDay = DateTime(widget.date.year, widget.date.month, widget.date.day, 23, 59, 59);
+        final startTimestamp = Timestamp.fromDate(startOfDay);
+        final endTimestamp = Timestamp.fromDate(endOfDay);
+        
+        final reservationsSnapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .collection('reservations')
+            .where('activityId', isEqualTo: widget.activity.id)
+            .where('time', isEqualTo: widget.time)
+            .get();
+        
+        for (final doc in reservationsSnapshot.docs) {
+          final data = doc.data();
+          final resDate = (data['date'] as Timestamp?)?.toDate();
+          if (resDate != null && 
+              resDate.year == widget.date.year &&
+              resDate.month == widget.date.month &&
+              resDate.day == widget.date.day) {
+            setState(() {
+              reservationId = doc.id;
+            });
+            break;
+          }
+        }
+      } catch (e2) {
+        print('Error finding reservation (fallback): $e2');
+      }
+    }
+  }
+
+  Future<void> _processPayment() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() => isProcessing = true);
+      await Future.delayed(const Duration(seconds: 2));
+      
+      try {
+        if (reservationId != null) {
+          await ReservationService.markReservationAsPaid(reservationId!);
+        } else {
+          // Fallback: create reservation as paid (shouldn't happen, but handle it)
+          final user = FirebaseAuth.instance.currentUser;
+          if (user != null) {
+            final totalPrice = widget.activity.price * widget.participants;
+            await ReservationService.validateReservation(
+              activityId: widget.activity.id,
+              date: widget.date,
+              time: widget.time,
+              participants: widget.participants,
+              totalPrice: totalPrice,
+            );
+            await ReservationService.markReservationAsPaid(reservationId!);
+          }
+        }
+        setState(() => isProcessing = false);
+        widget.onSuccess();
+      } catch (e) {
+        setState(() => isProcessing = false);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Erreur lors du paiement: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _skipPayment() async {
+    setState(() => isProcessing = true);
+    await Future.delayed(const Duration(milliseconds: 300));
+    setState(() => isProcessing = false);
+    widget.onSuccess();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,9 +205,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
           onPressed: widget.onBack,
         ),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
+      body: FadeTransition(
+        opacity: _fadeAnimation,
+        child: ScaleTransition(
+          scale: _scaleAnimation,
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
           Card(
             elevation: 2,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -265,78 +418,34 @@ class _PaymentScreenState extends State<PaymentScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: isProcessing ? null : () async {
-              if (_formKey.currentState!.validate()) {
-                setState(() => isProcessing = true);
-                await Future.delayed(const Duration(seconds: 2));
-                // create reservation object
-                final newRes = Reservation(
-                  id: 'res${mockUser.reservations.length + 1}',
-                  activityId: widget.activity.id,
-                  date: widget.date,
-                  time: widget.time,
-                  status: 'upcoming',
-                  participants: widget.participants,
-                  totalPrice: widget.activity.price * widget.participants,
-                );
-
-                // Persist reservation to Firestore if user is signed in
-                final user = FirebaseAuth.instance.currentUser;
-                if (user == null) {
-                  mockUser.reservations.add(newRes);
-                } else {
-                  try {
-                    final reservationsRef = FirebaseFirestore.instance.collection('users').doc(user.uid).collection('reservations');
-                    final docRef = await reservationsRef.add({
-                      'activityId': newRes.activityId,
-                      'date': Timestamp.fromDate(newRes.date),
-                      'time': newRes.time,
-                      'status': newRes.status,
-                      'participants': newRes.participants,
-                      'totalPrice': newRes.totalPrice,
-                      'createdAt': FieldValue.serverTimestamp(),
-                    });
-                    // reflect saved reservation id
-                    final savedRes = Reservation(
-                      id: docRef.id,
-                      activityId: newRes.activityId,
-                      date: newRes.date,
-                      time: newRes.time,
-                      status: newRes.status,
-                      participants: newRes.participants,
-                      totalPrice: newRes.totalPrice,
-                    );
-                    mockUser.reservations.add(savedRes);
-                  } catch (e) {
-                    print('Failed to persist reservation to Firestore: $e');
-                    // fallback to local storage
-                    mockUser.reservations.add(newRes);
-                  }
-                }
-                setState(() => isProcessing = false);
-                widget.onSuccess();
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              backgroundColor: const Color(0xFF2563EB),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
-            child: isProcessing ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : Text('Payer ${(widget.activity.price * widget.participants).toStringAsFixed(0)}€', style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: isProcessing ? null : _processPayment,
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  backgroundColor: const Color(0xFF2563EB),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+                child: isProcessing ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : Text('Payer ${(widget.activity.price * widget.participants).toStringAsFixed(0)}€', style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+              ),
+              const SizedBox(height: 12),
+              OutlinedButton(
+                onPressed: isProcessing ? null : _skipPayment,
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  side: BorderSide(color: Colors.grey[300]!),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+                child: Text('Payer plus tard', style: TextStyle(color: Colors.grey[700], fontSize: 16, fontWeight: FontWeight.bold)),
+              ),
+              const SizedBox(height: 12),
+              TextButton(
+                onPressed: isProcessing ? null : widget.onBack,
+                child: Text('Retour', style: TextStyle(color: Colors.grey[600], fontSize: 14)),
+              ),
+            ],
           ),
-          const SizedBox(height: 12),
-          OutlinedButton(
-            onPressed: widget.onBack,
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              side: BorderSide(color: Colors.grey[300]!),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
-            child: Text('Annuler', style: TextStyle(color: Colors.grey[700], fontSize: 16, fontWeight: FontWeight.bold)),
-          ),
-        ],
+        ),
       ),
     );
   }

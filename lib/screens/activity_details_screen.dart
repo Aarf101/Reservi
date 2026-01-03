@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'dart:convert';
 import 'dart:typed_data';
 import '../data/mock_data.dart';
@@ -97,11 +98,25 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> with Widg
     }
   }
 
-  void _openGoogleMaps(double lat, double lng) {
-    final url = 'https://www.google.com/maps/search/?api=1&query=$lat,$lng';
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Ouverture de Google Maps: $url')),
-    );
+  Future<void> _openGoogleMaps(double lat, double lng) async {
+    final url = Uri.parse('https://www.google.com/maps/search/?api=1&query=$lat,$lng');
+    try {
+      if (await canLaunchUrl(url)) {
+        await launchUrl(url, mode: LaunchMode.externalApplication);
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Impossible d\'ouvrir Google Maps')),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur lors de l\'ouverture de Google Maps: $e')),
+        );
+      }
+    }
   }
 
   @override

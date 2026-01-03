@@ -85,4 +85,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'reservi-e6b17.firebasestorage.app',
     measurementId: 'G-KEP80H9ZZN',
   );
+
 }

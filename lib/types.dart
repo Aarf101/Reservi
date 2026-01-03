@@ -32,6 +32,7 @@ class Activity {
   final Map<String, double> coordinates;
   final bool? hasPromotion;
   final String? promotionText;
+  final String center;
 
   Activity({
     required this.id,
@@ -48,6 +49,7 @@ class Activity {
     required this.coordinates,
     this.hasPromotion,
     this.promotionText,
+    required this.center,
   });
 }
 
@@ -56,9 +58,10 @@ class Reservation {
   final String activityId;
   final DateTime date;
   final String time;
-  final String status; // 'upcoming' | 'past'
+  final String status; // 'pending' | 'validated' | 'paid' | 'upcoming' | 'past'
   final int participants;
   final double totalPrice;
+  final bool isPaid;
 
   Reservation({
     required this.id,
@@ -68,6 +71,7 @@ class Reservation {
     required this.status,
     required this.participants,
     required this.totalPrice,
+    this.isPaid = false,
   });
 }
 

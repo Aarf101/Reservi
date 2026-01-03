@@ -23,6 +23,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   String searchQuery = '';
   String selectedType = 'all';
   String priceFilter = 'all';
+  String selectedCenter = 'all';
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   FocusNode searchFocusNode = FocusNode();
@@ -60,12 +61,19 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     return activities.where((activity) {
       final matchesSearch = activity.name.toLowerCase().contains(searchQuery.toLowerCase()) || activity.location.toLowerCase().contains(searchQuery.toLowerCase());
       final matchesType = selectedType == 'all' || activity.type == selectedType;
+      final matchesCenter = selectedCenter == 'all' || activity.center == selectedCenter;
       bool matchesPrice = true;
       if (priceFilter == 'low') matchesPrice = activity.price <= 15;
       if (priceFilter == 'medium') matchesPrice = activity.price > 15 && activity.price <= 25;
       if (priceFilter == 'high') matchesPrice = activity.price > 25;
-      return matchesSearch && matchesType && matchesPrice;
+      return matchesSearch && matchesType && matchesPrice && matchesCenter;
     }).toList();
+  }
+
+  List<String> _getUniqueCenters(List<Activity> activities) {
+    final centers = activities.map((a) => a.center).toSet().toList();
+    centers.sort();
+    return centers;
   }
 
   Future<void> _addSampleActivity() async {
@@ -93,6 +101,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   Widget _buildScaffold(List<Activity> activities, List<String> favIds, {required bool signedIn, fb_auth.User? user}) {
     final filteredActivities = _filter(activities);
     final promotions = activities.where((a) => a.hasPromotion ?? false).toList();
+    final uniqueCenters = _getUniqueCenters(activities);
 
     return Scaffold(
       body: CustomScrollView(
@@ -289,7 +298,35 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         ],
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 12),
+                    // Center filter
+                    if (uniqueCenters.isNotEmpty) ...[
+                      Text('Centre commercial', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.grey[700])),
+                      const SizedBox(height: 8),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            _FilterPill(
+                              label: 'Tous les centres',
+                              isSelected: selectedCenter == 'all',
+                              onTap: () => setState(() => selectedCenter = 'all'),
+                            ),
+                            const SizedBox(width: 8),
+                            ...uniqueCenters.map((center) => Padding(
+                              padding: const EdgeInsets.only(right: 8),
+                              child: _FilterPill(
+                                label: center,
+                                isSelected: selectedCenter == center,
+                                onTap: () => setState(() => selectedCenter = center),
+                              ),
+                            )),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                    ] else
+                      const SizedBox(height: 20),
                     // Results count
                     RichText(
                       text: TextSpan(

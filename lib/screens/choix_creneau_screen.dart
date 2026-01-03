@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../types.dart';
+import '../services/reservation_service.dart';
 
 class ChoixCreneauScreen extends StatefulWidget {
   final Activity activity;
@@ -11,11 +12,60 @@ class ChoixCreneauScreen extends StatefulWidget {
   _ChoixCreneauScreenState createState() => _ChoixCreneauScreenState();
 }
 
-class _ChoixCreneauScreenState extends State<ChoixCreneauScreen> {
+class _ChoixCreneauScreenState extends State<ChoixCreneauScreen> with SingleTickerProviderStateMixin {
   String? selectedSlot;
   DateTime? selectedDate;
   int participants = 1;
-  final slots = ['09:00', '10:30', '14:00', '15:30', '17:00', '18:30'];
+  List<String> availableSlots = [];
+  bool isLoadingSlots = false;
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 600),
+      vsync: this,
+    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
+    );
+    _animationController.forward();
+    // Initialize with activity's available slots
+    availableSlots = List.from(widget.activity.availableSlots);
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadAvailableSlots(DateTime date) async {
+    setState(() {
+      isLoadingSlots = true;
+      selectedSlot = null; // Reset selection when date changes
+    });
+
+    try {
+      final slots = await ReservationService.getAvailableSlots(
+        activityId: widget.activity.id,
+        date: date,
+      );
+      setState(() {
+        availableSlots = slots;
+        isLoadingSlots = false;
+      });
+    } catch (e) {
+      print('Error loading available slots: $e');
+      // Fallback to activity's available slots
+      setState(() {
+        availableSlots = List.from(widget.activity.availableSlots);
+        isLoadingSlots = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,9 +80,11 @@ class _ChoixCreneauScreenState extends State<ChoixCreneauScreen> {
           onPressed: widget.onBack,
         ),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
+      body: FadeTransition(
+        opacity: _fadeAnimation,
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
           Card(
             elevation: 2,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -51,7 +103,10 @@ class _ChoixCreneauScreenState extends State<ChoixCreneauScreen> {
                         firstDate: DateTime.now(),
                         lastDate: DateTime.now().add(const Duration(days: 30)),
                       );
-                      if (date != null) setState(() => selectedDate = date);
+                      if (date != null) {
+                        setState(() => selectedDate = date);
+                        _loadAvailableSlots(date);
+                      }
                     },
                     icon: const Icon(Icons.calendar_today),
                     style: ElevatedButton.styleFrom(
@@ -96,25 +151,41 @@ class _ChoixCreneauScreenState extends State<ChoixCreneauScreen> {
                 children: [
                   Text('Sélectionnez un créneau horaire', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey[900])),
                   const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: slots.map((slot) {
-                      final isSelected = selectedSlot == slot;
-                      return GestureDetector(
-                        onTap: () => setState(() => selectedSlot = slot),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                          decoration: BoxDecoration(
-                            color: isSelected ? const Color(0xFF2563EB) : Colors.grey[100],
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: isSelected ? const Color(0xFF2563EB) : Colors.grey[300]!),
+                  if (selectedDate == null)
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(color: Colors.blue[50], borderRadius: BorderRadius.circular(8)),
+                      child: Text('Veuillez d\'abord sélectionner une date', style: TextStyle(color: Colors.blue[700], fontSize: 14)),
+                    )
+                  else if (isLoadingSlots)
+                    const Center(child: Padding(padding: EdgeInsets.all(16), child: CircularProgressIndicator()))
+                  else if (availableSlots.isEmpty)
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(color: Colors.orange[50], borderRadius: BorderRadius.circular(8)),
+                      child: Text('Aucun créneau disponible pour cette date', style: TextStyle(color: Colors.orange[700], fontSize: 14)),
+                    )
+                  else
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: availableSlots.map((slot) {
+                        final isSelected = selectedSlot == slot;
+                        return GestureDetector(
+                          onTap: () => setState(() => selectedSlot = slot),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            decoration: BoxDecoration(
+                              color: isSelected ? const Color(0xFF2563EB) : Colors.grey[100],
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: isSelected ? const Color(0xFF2563EB) : Colors.grey[300]!, width: isSelected ? 2 : 1),
+                            ),
+                            child: Text(slot, style: TextStyle(color: isSelected ? Colors.white : Colors.grey[900], fontWeight: FontWeight.bold)),
                           ),
-                          child: Text(slot, style: TextStyle(color: isSelected ? Colors.white : Colors.grey[900], fontWeight: FontWeight.bold)),
-                        ),
-                      );
-                    }).toList(),
-                  ),
+                        );
+                      }).toList(),
+                    ),
                 ],
               ),
             ),
@@ -152,17 +223,18 @@ class _ChoixCreneauScreenState extends State<ChoixCreneauScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: (selectedDate != null && selectedSlot != null) ? () => widget.onConfirm(selectedDate!, selectedSlot!, participants) : null,
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              backgroundColor: const Color(0xFF2563EB),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: (selectedDate != null && selectedSlot != null) ? () => widget.onConfirm(selectedDate!, selectedSlot!, participants) : null,
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                backgroundColor: const Color(0xFF2563EB),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+              child: const Text('Continuer', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
             ),
-            child: const Text('Continuer', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

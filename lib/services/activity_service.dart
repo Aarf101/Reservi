@@ -17,6 +17,7 @@ class ActivityService {
       'coordinates': a.coordinates,
       'hasPromotion': a.hasPromotion,
       'promotionText': a.promotionText,
+      'center': a.center,
     };
   }
 
@@ -39,6 +40,7 @@ class ActivityService {
           coordinates: Map<String, double>.from((data['coordinates'] ?? {}).map((k, v) => MapEntry(k as String, (v as num).toDouble()))),
           hasPromotion: data['hasPromotion'] as bool?,
           promotionText: data['promotionText'] as String?,
+          center: (data['center'] ?? data['location'] ?? '') as String,
         );
       }).toList();
     });

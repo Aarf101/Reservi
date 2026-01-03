@@ -39,4 +39,29 @@ class MessagingService {
       await docRef.set({'fcmTokens': [token]}, SetOptions(merge: true));
     }
   }
+
+  /// Send a reservation notification to the user
+  /// In production, this would be called from a backend server using FCM Admin SDK
+  /// For now, we store notification data in Firestore
+  static Future<void> sendReservationNotification({
+    required String userId,
+    required String title,
+    required String body,
+  }) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection('notifications')
+          .add({
+        'title': title,
+        'body': body,
+        'type': 'reservation',
+        'read': false,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      print('Failed to send notification: $e');
+    }
+  }
 }
