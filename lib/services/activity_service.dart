@@ -53,4 +53,24 @@ class ActivityService {
     }
     await batch.commit();
   }
+
+  // Atomically reserve a slot for an activity by removing it from availableSlots.
+  // Returns true if the slot was successfully reserved, false otherwise.
+  static Future<bool> reserveSlot(String activityId, String slot) async {
+    final docRef = FirebaseFirestore.instance.collection('activities').doc(activityId);
+    try {
+      return await FirebaseFirestore.instance.runTransaction((tx) async {
+        final snapshot = await tx.get(docRef);
+        if (!snapshot.exists) return false;
+        final data = snapshot.data() ?? {};
+        final slots = List<String>.from(data['availableSlots'] ?? []);
+        if (!slots.contains(slot)) return false;
+        tx.update(docRef, {'availableSlots': FieldValue.arrayRemove([slot])});
+        return true;
+      });
+    } catch (e) {
+      print('reserveSlot transaction failed: $e');
+      return false;
+    }
+  }
 }

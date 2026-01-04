@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../types.dart';
 import '../data/mock_data.dart';
+import '../services/activity_service.dart';
+import '../services/messaging_service.dart';
 
 class PaymentScreen extends StatefulWidget {
   final Activity activity;
@@ -270,7 +272,16 @@ class _PaymentScreenState extends State<PaymentScreen> {
             onPressed: isProcessing ? null : () async {
               if (_formKey.currentState!.validate()) {
                 setState(() => isProcessing = true);
-                await Future.delayed(Duration(seconds: 2));
+
+                // First, try to atomically reserve the slot on the activity document.
+                final reserved = await ActivityService.reserveSlot(widget.activity.id, widget.time);
+                if (!reserved) {
+                  setState(() => isProcessing = false);
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Le créneau sélectionné n\'est plus disponible. Veuillez choisir un autre créneau.')));
+                  return;
+                }
+
+                await Future.delayed(Duration(seconds: 1));
                 // create reservation object
                 final newRes = Reservation(
                   id: 'res${mockUser.reservations.length + 1}',
@@ -286,6 +297,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 final user = FirebaseAuth.instance.currentUser;
                 if (user == null) {
                   mockUser.reservations.add(newRes);
+                  // schedule a local reminder 1 hour before
+                  final reminder = widget.date.subtract(Duration(hours: 1));
+                  if (reminder.isAfter(DateTime.now())) {
+                    MessagingService.scheduleReservationReminder(reminder, 'Rappel réservation', 'Votre réservation pour ${widget.activity.name} à ${widget.time}');
+                  }
                 } else {
                   try {
                     final reservationsRef = FirebaseFirestore.instance.collection('users').doc(user.uid).collection('reservations');
@@ -309,6 +325,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       totalPrice: newRes.totalPrice,
                     );
                     mockUser.reservations.add(savedRes);
+                    // schedule a local reminder 1 hour before
+                    final reminder = widget.date.subtract(Duration(hours: 1));
+                    if (reminder.isAfter(DateTime.now())) {
+                      MessagingService.scheduleReservationReminder(reminder, 'Rappel réservation', 'Votre réservation pour ${widget.activity.name} à ${widget.time}');
+                    }
                   } catch (e) {
                     print('Failed to persist reservation to Firestore: $e');
                     // fallback to local storage

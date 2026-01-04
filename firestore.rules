@@ -5,16 +5,42 @@ service cloud.firestore {
     match /activities/{activityId} {
       allow read: if true;
       // Allow authenticated users to update rating/ratingCount aggregates (from review submissions)
-      allow update: if request.auth != null && 
-                       (request.writeFields.size() == 0 || 
-                        (request.writeFields.size() == 2 && 
-                         request.writeFields.hasAll(['rating', 'ratingCount'])));
+      // Also allow authenticated users to atomically remove an available slot (reservation flow).
+      // Note: transactions may use server transforms (arrayRemove). Use `request.writeFields` to detect the field being written.
+      allow update: if request.auth != null && (
+                       // existing allowed updates (ratings)
+                       request.writeFields.size() == 0 ||
+                       (request.writeFields.size() == 2 && request.writeFields.hasAll(['rating', 'ratingCount'])) ||
+                       // allow updates that only write the `availableSlots` field (including transforms like arrayRemove)
+                       (request.writeFields.size() == 1 && request.writeFields.hasOnly(['availableSlots']))
+                     );
       
       // Only authenticated users can read/write reviews
       match /reviews/{reviewId} {
         allow read: if true;
         allow create: if request.auth != null;
         allow update, delete: if request.auth.uid == resource.data.userId;
+      }
+    }
+
+    // Centers collection: messages subcollection (chat between users and centers)
+    match /centers/{centerId} {
+      // Allow public read of center info
+      allow read: if true;
+
+      match /messages/{messageId} {
+        // Only authenticated users may read messages
+        allow read: if request.auth != null;
+
+        // Allow create only when the senderId matches the authenticated user
+        // and required fields are present with the expected types.
+        allow create: if request.auth != null
+                       && request.resource.data.keys().hasAll(['senderId', 'text', 'createdAt'])
+                       && request.resource.data.senderId == request.auth.uid
+                       && request.resource.data.text is string;
+
+        // Only the original sender can update or delete their message
+        allow update, delete: if request.auth != null && resource.data.senderId == request.auth.uid;
       }
     }
 

@@ -15,7 +15,15 @@ class _ChoixCreneauScreenState extends State<ChoixCreneauScreen> {
   String? selectedSlot;
   DateTime? selectedDate;
   int participants = 1;
-  final slots = ['09:00', '10:30', '14:00', '15:30', '17:00', '18:30'];
+  late List<String> slots;
+
+  @override
+  void initState() {
+    super.initState();
+    slots = widget.activity.availableSlots.isNotEmpty
+        ? widget.activity.availableSlots
+        : ['09:00', '10:30', '14:00', '15:30', '17:00', '18:30'];
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -7,6 +7,9 @@ import '../data/mock_data.dart';
 import '../types.dart';
 import '../services/activity_service.dart';
 import '../components/activity_card.dart';
+import '../services/recommendation_service.dart';
+import '../services/messaging_service.dart';
+import 'package:flutter/foundation.dart' show kDebugMode;
 
 class HomeScreen extends StatefulWidget {
   final ValueChanged<Activity> onDetails;
@@ -22,6 +25,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
   String searchQuery = '';
   String selectedType = 'all';
+  String selectedCenter = 'all';
   String priceFilter = 'all';
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
@@ -60,11 +64,12 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     return activities.where((activity) {
       final matchesSearch = activity.name.toLowerCase().contains(searchQuery.toLowerCase()) || activity.location.toLowerCase().contains(searchQuery.toLowerCase());
       final matchesType = selectedType == 'all' || activity.type == selectedType;
+      final matchesCenter = selectedCenter == 'all' || activity.location == selectedCenter;
       bool matchesPrice = true;
       if (priceFilter == 'low') matchesPrice = activity.price <= 15;
       if (priceFilter == 'medium') matchesPrice = activity.price > 15 && activity.price <= 25;
       if (priceFilter == 'high') matchesPrice = activity.price > 25;
-      return matchesSearch && matchesType && matchesPrice;
+      return matchesSearch && matchesType && matchesPrice && matchesCenter;
     }).toList();
   }
 
@@ -132,6 +137,19 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             ),
             actions: [
               IconButton(icon: Icon(Icons.favorite_border), onPressed: widget.onFavoris),
+              if (kDebugMode)
+                IconButton(
+                  icon: Icon(Icons.notifications_active_outlined),
+                  tooltip: 'Debug notifications',
+                  onPressed: () async {
+                    final token = await MessagingService.getToken();
+                    final when = DateTime.now().add(Duration(seconds: 10));
+                    await MessagingService.scheduleReservationReminder(when, 'Test reminder', 'Local notification scheduled in 10s');
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Scheduled local notif in 10s; token printed to console')));
+                    // ignore: avoid_print
+                    print('DEBUG FCM token: $token');
+                  },
+                ),
               Padding(
                 padding: EdgeInsets.only(right: 8),
                 child: GestureDetector(
@@ -263,6 +281,22 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             onTap: () => setState(() => selectedType = 'Loisir'),
                           ),
                           SizedBox(width: 16),
+                          // Center filter dropdown
+                          Builder(builder: (ctx) {
+                            final centers = activities.map((a) => a.location).toSet().toList();
+                            centers.sort();
+                            return Container(
+                              padding: EdgeInsets.symmetric(horizontal: 8),
+                              decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(20)),
+                              child: DropdownButton<String>(
+                                value: selectedCenter,
+                                items: [DropdownMenuItem(value: 'all', child: Text('Tous centres'))] + centers.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+                                onChanged: (v) => setState(() => selectedCenter = v ?? 'all'),
+                                underline: SizedBox.shrink(),
+                                elevation: 0,
+                              ),
+                            );
+                          }),
                           _FilterPill(
                             label: 'Tous prix',
                             isSelected: priceFilter == 'all',
@@ -290,6 +324,68 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       ),
                     ),
                     SizedBox(height: 20),
+                    // Personalized recommendations
+                    FutureBuilder<List<Activity>>(
+                      future: RecommendationService.recommendForUser(signedIn ? user?.uid : null),
+                      builder: (context, snap) {
+                        final recs = snap.data ?? [];
+                        if (recs.isEmpty) return SizedBox.shrink();
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(height: 12),
+                            Text('Recommandations pour vous', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey[900])),
+                            SizedBox(height: 12),
+                            SizedBox(
+                              height: 160,
+                              child: ListView.separated(
+                                scrollDirection: Axis.horizontal,
+                                itemCount: recs.length,
+                                separatorBuilder: (_, __) => SizedBox(width: 12),
+                                itemBuilder: (context, index) {
+                                  final a = recs[index];
+                                  return SizedBox(
+                                    width: 160,
+                                    child: GestureDetector(
+                                      onTap: () => widget.onDetails(a),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          ClipRRect(
+                                            borderRadius: BorderRadius.circular(12),
+                                            child: Image.network(
+                                              a.image,
+                                              width: 160,
+                                              height: 120,
+                                              fit: BoxFit.cover,
+                                              errorBuilder: (c, e, s) => Container(
+                                                width: 160,
+                                                height: 120,
+                                                color: Colors.grey[200],
+                                                child: Icon(Icons.image_not_supported, color: Colors.grey[600]),
+                                              ),
+                                            ),
+                                          ),
+                                          SizedBox(height: 8),
+                                          Text(
+                                            a.name,
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey[900]),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                            SizedBox(height: 12),
+                          ],
+                        );
+                      },
+                    ),
+
                     // Results count
                     RichText(
                       text: TextSpan(

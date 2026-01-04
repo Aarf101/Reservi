@@ -2,10 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:convert';
-import 'dart:typed_data';
+// removed unused dart:typed_data import
 import '../data/mock_data.dart';
 import '../types.dart';
 import '../services/review_service.dart';
+import 'chat_screen.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart' as latlng;
+// removed unused kIsWeb import
 
 class ActivityDetailsScreen extends StatefulWidget {
   final VoidCallback onBack;
@@ -97,11 +102,14 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> with Widg
     }
   }
 
-  void _openGoogleMaps(double lat, double lng) {
+  void _openGoogleMaps(double lat, double lng) async {
     final url = 'https://www.google.com/maps/search/?api=1&query=$lat,$lng';
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Ouverture de Google Maps: $url')),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Ouverture de Google Maps')));
+    try {
+      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Impossible d\'ouvrir Google Maps')));
+    }
   }
 
   @override
@@ -234,6 +242,51 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> with Widg
                                             ],
                                           ),
                                         ),
+                                        SizedBox(height: 8),
+                                        if ((widget.activity.coordinates['lat'] ?? 0.0) != 0.0 || (widget.activity.coordinates['lng'] ?? 0.0) != 0.0)
+                                          Container(
+                                            height: 160,
+                                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.grey[200]!)),
+                                            child: ClipRRect(
+                                              borderRadius: BorderRadius.circular(8),
+                                              child: FlutterMap(
+                                                options: MapOptions(
+                                                  initialCenter: latlng.LatLng(widget.activity.coordinates['lat'] ?? 0.0, widget.activity.coordinates['lng'] ?? 0.0),
+                                                  initialZoom: 15,
+                                                ),
+                                                children: [
+                                                  TileLayer(
+                                                    urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                                    subdomains: ['a', 'b', 'c'],
+                                                    userAgentPackageName: 'com.example.reservi1_flutter',
+                                                  ),
+                                                  MarkerLayer(
+                                                    markers: [
+                                                      Marker(
+                                                        point: latlng.LatLng(widget.activity.coordinates['lat'] ?? 0.0, widget.activity.coordinates['lng'] ?? 0.0),
+                                                        width: 40,
+                                                        height: 40,
+                                                        child: Icon(Icons.location_on, color: Colors.red, size: 36),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  Positioned.fill(
+                                                    child: Align(
+                                                      alignment: Alignment.bottomCenter,
+                                                      child: Padding(
+                                                        padding: EdgeInsets.all(8),
+                                                        child: ElevatedButton(
+                                                          onPressed: () => _openGoogleMaps(widget.activity.coordinates['lat'] ?? 0.0, widget.activity.coordinates['lng'] ?? 0.0),
+                                                          child: Text('Ouvrir dans Maps'),
+                                                          style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: Colors.blue),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
                                       ],
                                     ),
                                   ),
@@ -422,17 +475,38 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> with Widg
                 color: Colors.white,
                 border: Border(top: BorderSide(color: Colors.grey[300]!)),
               ),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: widget.onReserve,
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: Colors.blue,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: widget.onReserve,
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        backgroundColor: Colors.blue,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                      child: Text('Réserver maintenant', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                    ),
                   ),
-                  child: Text('Réserver maintenant', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-                ),
+                  SizedBox(width: 12),
+                  OutlinedButton(
+                    onPressed: () {
+                      Navigator.of(context).push(MaterialPageRoute(builder: (_) => ChatScreen(centerId: widget.activity.location, centerName: widget.activity.location)));
+                    },
+                    style: OutlinedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                      side: BorderSide(color: Colors.grey[300]!),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.chat_bubble_outline, color: Colors.grey[700]),
+                        SizedBox(width: 8),
+                        Text('Contacter', style: TextStyle(color: Colors.grey[700], fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

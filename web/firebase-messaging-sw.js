@@ -6,14 +6,15 @@
 importScripts('https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging-compat.js');
 
-// TODO: Replace with your Firebase app config
+// Firebase web config copied from lib/firebase_options.dart (web)
 const firebaseConfig = {
-  // apiKey: "...",
-  // authDomain: "...",
-  // projectId: "...",
-  // storageBucket: "...",
-  // messagingSenderId: "...",
-  // appId: "...",
+  apiKey: 'AIzaSyCoP3ayV2ThVfAd4FJc57OcgbV3uXVmwFQ',
+  authDomain: 'reservi-e6b17.firebaseapp.com',
+  projectId: 'reservi-e6b17',
+  storageBucket: 'reservi-e6b17.firebasestorage.app',
+  messagingSenderId: '610510773006',
+  appId: '1:610510773006:web:92344c5e8ad7e25cd1555f',
+  measurementId: 'G-ZNE04RGGS9'
 };
 
 try {
