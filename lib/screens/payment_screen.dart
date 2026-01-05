@@ -5,6 +5,7 @@ import '../types.dart';
 import '../data/mock_data.dart';
 import '../services/activity_service.dart';
 import '../services/messaging_service.dart';
+import '../widgets/reservi_logo.dart';
 
 class PaymentScreen extends StatefulWidget {
   final Activity activity;
@@ -45,11 +46,89 @@ class _PaymentScreenState extends State<PaymentScreen> {
     }
     return v;
   }
+
+  Future<void> _createReservation({required bool isPaid}) async {
+    setState(() => isProcessing = true);
+
+    // First, try to atomically reserve the slot on the activity document.
+    final reserved = await ActivityService.reserveSlot(widget.activity.id, widget.time);
+    if (!reserved) {
+      setState(() => isProcessing = false);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Le créneau sélectionné n\'est plus disponible. Veuillez choisir un autre créneau.')));
+      return;
+    }
+
+    await Future.delayed(Duration(seconds: 1));
+    // create reservation object
+    final newRes = Reservation(
+      id: 'res${mockUser.reservations.length + 1}',
+      activityId: widget.activity.id,
+      date: widget.date,
+      time: widget.time,
+      status: 'upcoming',
+      participants: widget.participants,
+      totalPrice: widget.activity.price * widget.participants,
+      isPaid: isPaid,
+    );
+
+    // Persist reservation to Firestore if user is signed in
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      mockUser.reservations.add(newRes);
+      // schedule a local reminder 1 hour before
+      final reminder = widget.date.subtract(Duration(hours: 1));
+      if (reminder.isAfter(DateTime.now())) {
+        MessagingService.scheduleReservationReminder(reminder, 'Rappel réservation', 'Votre réservation pour ${widget.activity.name} à ${widget.time}');
+      }
+    } else {
+      try {
+        final reservationsRef = FirebaseFirestore.instance.collection('users').doc(user.uid).collection('reservations');
+        final docRef = await reservationsRef.add({
+          'activityId': newRes.activityId,
+          'date': Timestamp.fromDate(newRes.date),
+          'time': newRes.time,
+          'status': newRes.status,
+          'participants': newRes.participants,
+          'totalPrice': newRes.totalPrice,
+          'isPaid': newRes.isPaid,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+        // reflect saved reservation id
+        final savedRes = Reservation(
+          id: docRef.id,
+          activityId: newRes.activityId,
+          date: newRes.date,
+          time: newRes.time,
+          status: newRes.status,
+          participants: newRes.participants,
+          totalPrice: newRes.totalPrice,
+          isPaid: newRes.isPaid,
+        );
+        mockUser.reservations.add(savedRes);
+        // schedule a local reminder 1 hour before
+        final reminder = widget.date.subtract(Duration(hours: 1));
+        if (reminder.isAfter(DateTime.now())) {
+          MessagingService.scheduleReservationReminder(reminder, 'Rappel réservation', 'Votre réservation pour ${widget.activity.name} à ${widget.time}');
+        }
+      } catch (e) {
+        print('Failed to persist reservation to Firestore: $e');
+        // fallback to local storage
+        mockUser.reservations.add(newRes);
+      }
+    }
+    setState(() => isProcessing = false);
+    widget.onSuccess();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Paiement', style: TextStyle(color: Colors.grey[900])),
+        title: ReserviLogo(
+          iconSize: 28,
+          fontSize: 20,
+          textColor: Colors.grey[900],
+        ),
         elevation: 0,
         backgroundColor: Colors.white,
         iconTheme: IconThemeData(color: Colors.grey[900]),
@@ -225,7 +304,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text('Sous-total', style: TextStyle(color: Colors.grey[600], fontSize: 14)),
-                      Text('30€', style: TextStyle(color: Colors.grey[900], fontWeight: FontWeight.w500)),
+                      Text('${(widget.activity.price * widget.participants).toStringAsFixed(0)}€', style: TextStyle(color: Colors.grey[900], fontWeight: FontWeight.w500)),
                     ],
                   ),
                   SizedBox(height: 8),
@@ -243,7 +322,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text('Montant total', style: TextStyle(color: Colors.grey[900], fontWeight: FontWeight.bold, fontSize: 16)),
-                      Text('30€', style: TextStyle(color: Color(0xFF2563EB), fontWeight: FontWeight.bold, fontSize: 18)),
+                      Text('${(widget.activity.price * widget.participants).toStringAsFixed(0)}€', style: TextStyle(color: Color(0xFF2563EB), fontWeight: FontWeight.bold, fontSize: 18)),
                     ],
                   ),
                 ],
@@ -271,73 +350,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
           ElevatedButton(
             onPressed: isProcessing ? null : () async {
               if (_formKey.currentState!.validate()) {
-                setState(() => isProcessing = true);
-
-                // First, try to atomically reserve the slot on the activity document.
-                final reserved = await ActivityService.reserveSlot(widget.activity.id, widget.time);
-                if (!reserved) {
-                  setState(() => isProcessing = false);
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Le créneau sélectionné n\'est plus disponible. Veuillez choisir un autre créneau.')));
-                  return;
-                }
-
-                await Future.delayed(Duration(seconds: 1));
-                // create reservation object
-                final newRes = Reservation(
-                  id: 'res${mockUser.reservations.length + 1}',
-                  activityId: widget.activity.id,
-                  date: widget.date,
-                  time: widget.time,
-                  status: 'upcoming',
-                  participants: widget.participants,
-                  totalPrice: widget.activity.price * widget.participants,
-                );
-
-                // Persist reservation to Firestore if user is signed in
-                final user = FirebaseAuth.instance.currentUser;
-                if (user == null) {
-                  mockUser.reservations.add(newRes);
-                  // schedule a local reminder 1 hour before
-                  final reminder = widget.date.subtract(Duration(hours: 1));
-                  if (reminder.isAfter(DateTime.now())) {
-                    MessagingService.scheduleReservationReminder(reminder, 'Rappel réservation', 'Votre réservation pour ${widget.activity.name} à ${widget.time}');
-                  }
-                } else {
-                  try {
-                    final reservationsRef = FirebaseFirestore.instance.collection('users').doc(user.uid).collection('reservations');
-                    final docRef = await reservationsRef.add({
-                      'activityId': newRes.activityId,
-                      'date': Timestamp.fromDate(newRes.date),
-                      'time': newRes.time,
-                      'status': newRes.status,
-                      'participants': newRes.participants,
-                      'totalPrice': newRes.totalPrice,
-                      'createdAt': FieldValue.serverTimestamp(),
-                    });
-                    // reflect saved reservation id
-                    final savedRes = Reservation(
-                      id: docRef.id,
-                      activityId: newRes.activityId,
-                      date: newRes.date,
-                      time: newRes.time,
-                      status: newRes.status,
-                      participants: newRes.participants,
-                      totalPrice: newRes.totalPrice,
-                    );
-                    mockUser.reservations.add(savedRes);
-                    // schedule a local reminder 1 hour before
-                    final reminder = widget.date.subtract(Duration(hours: 1));
-                    if (reminder.isAfter(DateTime.now())) {
-                      MessagingService.scheduleReservationReminder(reminder, 'Rappel réservation', 'Votre réservation pour ${widget.activity.name} à ${widget.time}');
-                    }
-                  } catch (e) {
-                    print('Failed to persist reservation to Firestore: $e');
-                    // fallback to local storage
-                    mockUser.reservations.add(newRes);
-                  }
-                }
-                setState(() => isProcessing = false);
-                widget.onSuccess();
+                await _createReservation(isPaid: true);
               }
             },
             style: ElevatedButton.styleFrom(
@@ -346,6 +359,18 @@ class _PaymentScreenState extends State<PaymentScreen> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
             child: isProcessing ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : Text('Payer ${(widget.activity.price * widget.participants).toStringAsFixed(0)}€', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+          ),
+          SizedBox(height: 12),
+          OutlinedButton(
+            onPressed: isProcessing ? null : () async {
+              await _createReservation(isPaid: false);
+            },
+            style: OutlinedButton.styleFrom(
+              padding: EdgeInsets.symmetric(vertical: 16),
+              side: BorderSide(color: Color(0xFF2563EB), width: 2),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            child: Text('Confirmer et payer plus tard', style: TextStyle(color: Color(0xFF2563EB), fontSize: 16, fontWeight: FontWeight.bold)),
           ),
           SizedBox(height: 12),
           OutlinedButton(

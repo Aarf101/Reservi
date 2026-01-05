@@ -5,6 +5,7 @@ import '../data/mock_data.dart';
 import '../components/activity_card.dart';
 import '../services/activity_service.dart';
 import '../types.dart';
+import '../widgets/reservi_logo.dart';
 
 class FavorisScreen extends StatefulWidget {
   final VoidCallback onBack;
@@ -22,7 +23,11 @@ class _FavorisScreenState extends State<FavorisScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Mes Favoris', style: TextStyle(color: Colors.grey[900])),
+        title: ReserviLogo(
+          iconSize: 28,
+          fontSize: 20,
+          textColor: Colors.grey[900],
+        ),
         elevation: 0,
         backgroundColor: Colors.white,
         iconTheme: IconThemeData(color: Colors.grey[900]),

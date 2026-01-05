@@ -71,6 +71,7 @@ final mockUser = User(
       status: 'upcoming',
       participants: 2,
       totalPrice: 30,
+      isPaid: false, // Unpaid reservation to demonstrate payment feature
     ),
     Reservation(
       id: 'res2',
@@ -80,6 +81,7 @@ final mockUser = User(
       status: 'past',
       participants: 4,
       totalPrice: 100,
+      isPaid: true, // Past reservation was paid
     ),
   ],
 );

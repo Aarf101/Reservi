@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import '../widgets/reservi_logo.dart';
 
 class SplashScreen extends StatefulWidget {
   final VoidCallback onContinue;
@@ -51,25 +52,11 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Animated star icon
-                Container(
-                  padding: EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white.withOpacity(0.2),
-                  ),
-                  child: Icon(Icons.star, color: Colors.white, size: 60),
-                ),
-                SizedBox(height: 32),
-                // App name
-                Text(
-                  'Reservi',
-                  style: TextStyle(
-                    fontSize: 48,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    letterSpacing: 2,
-                  ),
+                // New logo
+                ReserviLogo(
+                  iconSize: 80,
+                  fontSize: 48,
+                  textColor: Colors.white,
                 ),
                 SizedBox(height: 12),
                 // Tagline

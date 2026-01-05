@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../types.dart';
+import '../widgets/reservi_logo.dart';
 
 class ChoixCreneauScreen extends StatefulWidget {
   final Activity activity;
@@ -29,7 +30,11 @@ class _ChoixCreneauScreenState extends State<ChoixCreneauScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Choisir un créneau', style: TextStyle(color: Colors.grey[900])),
+        title: ReserviLogo(
+          iconSize: 28,
+          fontSize: 20,
+          textColor: Colors.grey[900],
+        ),
         elevation: 0,
         backgroundColor: Colors.white,
         iconTheme: IconThemeData(color: Colors.grey[900]),

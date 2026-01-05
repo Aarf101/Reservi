@@ -59,6 +59,7 @@ class Reservation {
   final String status; // 'upcoming' | 'past'
   final int participants;
   final double totalPrice;
+  final bool isPaid; // true if paid, false if payment pending
 
   Reservation({
     required this.id,
@@ -68,6 +69,7 @@ class Reservation {
     required this.status,
     required this.participants,
     required this.totalPrice,
+    this.isPaid = false, // Default to false for backward compatibility
   });
 }
 

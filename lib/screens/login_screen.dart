@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../data/mock_data.dart';
+import '../widgets/reservi_logo.dart';
 
 class LoginScreen extends StatefulWidget {
   final VoidCallback onLogin;
@@ -152,28 +153,10 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                   // Animated header slide-in
                   SlideTransition(
                     position: _headerSlideAnimation,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          padding: EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.95),
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.15),
-                                blurRadius: 16,
-                                offset: Offset(0, 8),
-                              )
-                            ],
-                          ),
-                          child: Icon(Icons.star, color: Color(0xFF9333EA), size: 32),
-                        ),
-                        SizedBox(width: 12),
-                        Text('Reservi', 
-                          style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 1)),
-                      ],
+                    child: ReserviLogo(
+                      iconSize: 48,
+                      fontSize: 28,
+                      textColor: Colors.white,
                     ),
                   ),
                   SizedBox(height: 40),

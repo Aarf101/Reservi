@@ -9,6 +9,7 @@ import '../services/activity_service.dart';
 import '../components/activity_card.dart';
 import '../services/recommendation_service.dart';
 import '../services/messaging_service.dart';
+import '../widgets/reservi_logo.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 
 class HomeScreen extends StatefulWidget {
@@ -120,20 +121,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 ),
               ),
             ),
-            title: Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(colors: [Color(0xFF2563EB), Color(0xFF9333EA)]),
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: [BoxShadow(color: Color(0xFF2563EB).withOpacity(0.3), blurRadius: 8)],
-                  ),
-                  child: Icon(Icons.star, color: Colors.white, size: 22),
-                ),
-                SizedBox(width: 10),
-                Text('Reservi', style: TextStyle(color: Colors.grey[800], fontSize: 22, fontWeight: FontWeight.bold)),
-              ],
+            title: ReserviLogo(
+              iconSize: 32,
+              fontSize: 22,
+              textColor: Colors.grey[800],
             ),
             actions: [
               IconButton(icon: Icon(Icons.favorite_border), onPressed: widget.onFavoris),
@@ -213,47 +204,36 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         ),
                       ),
                     if (promotions.isNotEmpty) SizedBox(height: 18),
-                    // Animated search bar
-                    AnimatedContainer(
-                      duration: Duration(milliseconds: 300),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          if (isSearchFocused)
-                            BoxShadow(
-                              color: Color(0xFF2563EB).withOpacity(0.2),
-                              blurRadius: 12,
-                              offset: Offset(0, 4),
-                            )
-                          else
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 6,
-                              offset: Offset(0, 2),
-                            )
-                        ],
-                      ),
+                    // Enhanced Search Bar with Suggestions
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       child: TextField(
                         focusNode: searchFocusNode,
-                        onChanged: (value) => setState(() => searchQuery = value),
+                        onChanged: (value) {
+                          setState(() {
+                            searchQuery = value;
+                          });
+                        },
                         decoration: InputDecoration(
-                          hintText: 'Rechercher une activité...',
-                          prefixIcon: Icon(Icons.search, color: Colors.grey[400]),
-                          suffixIcon: searchQuery.isNotEmpty
-                              ? GestureDetector(
-                                  onTap: () {
-                                    setState(() => searchQuery = '');
+                          hintText: 'Search activities...',
+                          prefixIcon: Icon(Icons.search),
+                          suffixIcon: isSearchFocused
+                              ? IconButton(
+                                  icon: Icon(Icons.clear),
+                                  onPressed: () {
+                                    setState(() {
+                                      searchQuery = '';
+                                      searchFocusNode.unfocus();
+                                    });
                                   },
-                                  child: Icon(Icons.clear, color: Colors.grey[400]),
                                 )
                               : null,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
+                            borderSide: BorderSide(color: Colors.grey.shade300),
                           ),
                           filled: true,
-                          fillColor: Colors.grey[50],
-                          contentPadding: EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+                          fillColor: Colors.grey.shade100,
                         ),
                       ),
                     ),

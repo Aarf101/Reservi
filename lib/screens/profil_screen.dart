@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../data/mock_data.dart';
+import '../widgets/reservi_logo.dart';
 
 class ProfilScreen extends StatefulWidget {
   final VoidCallback onLogout;
@@ -160,7 +161,11 @@ class _ProfilScreenState extends State<ProfilScreen> {
           icon: Icon(Icons.arrow_back, color: Colors.grey[900]),
           onPressed: widget.onBack ?? () => Navigator.of(context).maybePop(),
         ),
-        title: Text('Mon Profil', style: TextStyle(color: Colors.grey[900])),
+        title: ReserviLogo(
+          iconSize: 28,
+          fontSize: 20,
+          textColor: Colors.grey[900],
+        ),
         elevation: 0,
         backgroundColor: Colors.white,
         iconTheme: IconThemeData(color: Colors.grey[900]),
