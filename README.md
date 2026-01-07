@@ -40,8 +40,7 @@ Reservi est une application mobile développée en Flutter qui permet aux utilis
 1. Cloner le dépôt :
 
 ```bash
-git clone git clone <url-du-depot>
-cd Reservi
+git clone git clone git clone https://github.com/Aarf101/Reservi.git
 cd Reservi
 ```
 
@@ -127,6 +126,7 @@ Ne commitez jamais de clés secrètes dans le dépôt.
 
 - Ouvrez une issue pour discuter des fonctionnalités importantes.
 - Pour une contribution : forkez, créez une branche feature, puis envoyez une pull request avec une description claire et des tests si pertinents.
+
 
 
 
