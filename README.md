@@ -127,27 +127,5 @@ Ne commitez jamais de clés secrètes dans le dépôt.
 - Ouvrez une issue pour discuter des fonctionnalités importantes.
 - Pour une contribution : forkez, créez une branche feature, puis envoyez une pull request avec une description claire et des tests si pertinents.
 
-## Licence
 
-Indiquez la licence ici (par ex. MIT). Si vous souhaitez que je crée un fichier `LICENSE` (MIT), dites-le et je l'ajouterai.
 
-## Contact
-
-Pour toute question, ouvrez une issue sur le dépôt ou contactez l'auteur principal.
-
-# reservi1_flutter
-
-A new Flutter project.
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
